@@ -1,0 +1,661 @@
+/* ==============================
+   1. Variables y configuración global
+============================== */
+:root {
+    /* Colores principales */
+    --primary-color: #2c3e50;
+    --secondary-color: #3498db;
+    --accent-color: #e74c3c;
+    
+    /* Colores de fondo y texto */
+    --background-color: #ffffff;
+    --text-color: #333333;
+    --text-light: #666666;
+    
+    /* Dimensiones */
+    --nav-height: 80px;
+    --container-max-width: 1200px;
+    --footer-height: 100px;
+    
+    /* Espaciado */
+    --spacing-xs: 0.25rem;
+    --spacing-sm: 0.5rem;
+    --spacing-md: 1rem;
+    --spacing-lg: 2rem;
+    
+    /* Bordes y sombras */
+    --border-radius: 8px;
+    --box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    
+    /* Transiciones */
+    --transition-speed: 0.3s;
+    
+    /* Tipografía */
+    --font-primary: 'Arial', sans-serif;
+    --font-size-base: 16px;
+}
+
+/* ==============================
+   2. Reset y estilos base
+============================== */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: var(--font-primary);
+    font-size: var(--font-size-base);
+    line-height: 1.6;
+    color: var(--text-color);
+    background-color: var(--background-color);
+}
+
+/* ==============================
+   3. Layout y contenedores
+============================== */
+.container {
+    max-width: var(--container-max-width);
+    margin: 0 auto;
+    padding: 0 var(--spacing-lg);
+}
+
+main {
+    margin-top: var(--nav-height);
+    min-height: calc(100vh - var(--nav-height) - var(--footer-height));
+    padding: var(--spacing-lg);
+}
+
+/* ==============================
+   4. Navegación
+============================== */
+.header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    background-color: #181212;
+    box-shadow: var(--box-shadow);
+    z-index: 1000;
+}
+
+.navbar {
+    height: var(--nav-height);
+}
+
+.navbar-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    height: 100%;
+    margin-right: 40px;
+
+}
+
+.logo {
+    display: flex;
+    align-items: center;
+}
+
+.logo-img {
+    height: 50px;
+    width: auto;
+    margin-left: 10px; 
+}
+
+.nav-menu {
+    display: flex;
+    align-items: center;
+    
+
+}
+
+/* Estilos actualizados para la navegación manteniendo el diseño original */
+.nav-links {
+    display: flex;
+    list-style: none;
+    gap: var(--spacing-lg);
+    margin: 0;
+    padding: 0;
+    align-items: center; /* Añadido para alineación vertical */
+    height: 100%; /* Asegura que tome la altura del contenedor padre */
+}
+
+.nav-links li {
+    display: flex;
+    align-items: center;
+    height: 100%; /* Mantiene la altura consistente */
+}
+
+.nav-link {
+    color: #fff8f8;
+    text-decoration: none;
+    font-weight: bold;
+    padding: 0.5rem var(--spacing-md); /* Reducido el padding vertical */
+    border-radius: var(--border-radius);
+    transition: all var(--transition-speed);
+    display: inline-flex; /* Cambiado a inline-flex */
+    align-items: center;
+}
+
+.nav-link:hover {
+    background-color: #ff7979cd;
+    color: #181212;
+}
+
+.nav-toggle {
+    display: none;
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    color: var(--primary-color);
+    cursor: pointer;
+    align-items: center; /* Añadido para alineación */
+}
+
+/* Aseguramos que el contenedor principal mantenga la alineación */
+.nav-menu {
+    height: 100%;
+    display: flex;
+    align-items: center;
+}
+
+/* Media query para dispositivos móviles */
+@media (max-width: 768px) {
+    .nav-toggle {
+        display: flex;
+        align-items: center;
+    }
+
+    .nav-menu {
+        display: none; /* O tu lógica actual para el menú móvil */
+    }
+
+    .nav-menu.active {
+        display: flex;
+    }
+
+    .nav-links {
+        flex-direction: column;
+        height: auto;
+        padding: var(--spacing-md) 0;
+    }
+
+    .nav-links li,
+    .nav-link {
+        width: 100%;
+        height: auto;
+        justify-content: center;
+    }
+}
+
+/* ==============================
+   5. Componentes del Hero
+============================== */
+.hero {
+    padding: var(--spacing-lg) 0;
+    background-color: var(--background-color);
+}
+
+.hero-content {
+    text-align: center;
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.hero-title {
+    font-size: 2.5rem;
+    color: var(--primary-color);
+    margin-bottom: var(--spacing-md);
+}
+/* ==============================
+   6. Productos
+============================== */
+.products-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: var(--spacing-lg);
+    padding: var(--spacing-lg);
+}
+
+/* Tarjeta de producto */
+.product-card {
+    display: flex;
+    flex-direction: column; /* Coloca el contenido en columna */
+    justify-content: space-between; /* Espaciado entre el contenido */
+    height: 100%; /* Asegura que todas las tarjetas tengan la misma altura */
+    background: var(--background-color);
+    border-radius: var(--border-radius);
+    box-shadow: var(--box-shadow);
+    overflow: hidden;
+    transition: transform var(--transition-speed);
+}
+
+.product-card:hover {
+    transform: translateY(-5px);
+}
+
+/* Carrusel de imágenes */
+.product-carousel {
+    position: relative;
+    height: 300px;
+    overflow: hidden;
+}
+
+.carousel-items {
+    display: flex;
+    transition: transform var(--transition-speed);
+    height: 100%;
+}
+
+.carousel-items img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    flex-shrink: 0;
+}
+
+.carousel-prev,
+.carousel-next {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    background: rgba(0, 0, 0, 0.5);
+    color: var(--background-color);
+    border: none;
+    padding: var(--spacing-md);
+    cursor: pointer;
+    border-radius: 50%;
+    z-index: 2;
+    transition: background var(--transition-speed);
+}
+
+.carousel-prev:hover,
+.carousel-next:hover {
+    background: rgba(0, 0, 0, 0.8);
+}
+
+.carousel-prev {
+    left: var(--spacing-md);
+}
+
+.carousel-next {
+    right: var(--spacing-md);
+}
+
+/* Información del producto */
+.product-info {
+    flex-grow: 1;
+    padding: var(--spacing-lg);
+    display: flex;
+    flex-direction: column;
+    padding-bottom: 15px;
+}
+
+.product-info h3 {
+    margin: 0 0 var(--spacing-md);
+    color: var(--primary-color);
+    font-size: 1.25rem;
+}
+
+.product-description {
+    color: var(--text-color);
+    margin-bottom: auto; /* Empuja el contenido siguiente hacia abajo */
+    line-height: 1.5;
+}
+
+.product-meta {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px; /* Espacio entre meta info y botón */
+    padding: 10px 0;
+    border-top: 1px solid #eee; /* Línea separadora opcional */
+}
+.combustible-tag {
+    display: inline-block; /* El tamaño se ajusta al contenido */
+    background-color: #f39c12; /* Color de fondo */
+    color: white; 
+    padding: 0.2rem 0.6rem; 
+    border-radius: 12px;
+    font-size: 0.9rem;
+    font-weight: bold;
+    margin-top: 0.5rem;
+    text-align: right; /* Alinea el texto dentro del tag */
+}
+
+.price {
+    font-size: 1.25rem;
+    font-weight: bold;
+    color: var(--primary-color);
+}
+
+.likes {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-xs);
+}
+
+.status {
+    padding: var(--spacing-xs) var(--spacing-sm);
+    border-radius: 20px;
+    font-size: 0.875rem;
+    font-size: 0.9rem;
+    font-weight: bold;
+}
+
+.status.disponible {
+    background: #2ecc71;
+    color: var(--background-color);
+}
+
+.status.no-disponible {
+    background: var(--accent-color);
+    color: var(--background-color);
+}
+
+.product-btn {
+    margin-top: auto;
+    display: block;
+    width: calc(100% - 30px); /* Resta el padding lateral */
+    padding: var(--spacing-sm) var(--spacing-md);
+    background: #e73c6d;
+    color: var(--background-color);
+    text-align: center;
+    text-decoration: none;
+    border-radius: var(--border-radius);
+    transition: background var(--transition-speed), transform 0.2s ease;
+    position: relative;
+    bottom: 15px; /* Ajusta esta distancia según necesites */
+    margin-left: 15px; /* Para centrar el botón */
+    margin-right: 15px; /* Para centrar el botón */
+}
+
+.product-btn:hover {
+    background-color: #111213;
+    transform: scale(1.05);
+}
+.hero-btn {
+    display: inline-block;
+    padding: 12px 25px;
+    font-size: 1rem;
+    font-weight: bold;
+    color: #fff;
+    background-color: #00796b;
+    border-radius: 25px;
+    text-decoration: none;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+}
+.hero-btn:hover {
+    background-color: #004d40;
+    transform: scale(1.05);
+}
+
+/* Media Queries para productos */
+@media (max-width: 768px) {
+    .products-grid {
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        padding: var(--spacing-md);
+    }
+
+    .product-carousel {
+        height: 250px;
+    }
+
+    .product-info {
+        padding: var(--spacing-md);
+    }
+}
+/* ==============================
+   7. Footer
+============================== */
+ody {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    margin: 0;
+    font-family: var(--font-primary);
+    font-size: var(--font-size-base);
+    line-height: 1.6;
+    color: var(--text-color);
+    background-color: var(--background-color);
+}
+
+/* El main debe crecer para ocupar el espacio disponible */
+main {
+    flex: 1;
+    margin-top: var(--nav-height);
+    padding: var(--spacing-lg);
+}
+
+/* Ajustes del footer */
+.footer {
+    background-color: var(--primary-color);
+    color: var(--background-color);
+    padding: var(--spacing-lg) 0;
+    width: 100%;
+    margin-top: auto; /* Esto empuja el footer al final */
+}
+
+.footer-container {
+    max-width: var(--container-max-width);
+    margin: 0 auto;
+    padding: 0 var(--spacing-lg);
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: var(--spacing-lg);
+}
+
+.footer-section h3 {
+    color: var(--background-color);
+    margin-bottom: var(--spacing-md);
+    font-size: 1.2rem;
+}
+
+.contact-info {
+    list-style: none;
+    padding: 0;
+}
+
+.contact-info li {
+    margin-bottom: var(--spacing-sm);
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+}
+
+.contact-info a {
+    color: var(--background-color);
+    text-decoration: none;
+    transition: color var(--transition-speed);
+}
+
+.contact-info a:hover {
+    color: var(--secondary-color);
+}
+
+.footer-bottom {
+    text-align: center;
+    padding-top: var(--spacing-lg);
+    margin-top: var(--spacing-lg);
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* Mejoras para responsive */
+@media (max-width: 768px) {
+    .footer-container {
+        grid-template-columns: 1fr;
+        text-align: center;
+        gap: var(--spacing-lg);
+    }
+
+    .contact-info li {
+        justify-content: center;
+    }
+}
+
+/* ==============================
+   8. Utilidades
+============================== */
+.text-center { text-align: center; }
+.hidden { display: none; }
+.visible { display: block; }
+
+/* ==============================
+   9. Media Queries
+============================== */
+@media (max-width: 768px) {
+    .nav-toggle {
+        display: block;
+    }
+
+    .nav-menu {
+        position: fixed;
+        top: var(--nav-height);
+        left: 0;
+        width: 100%;
+        height: 0;
+        background-color: var(--background-color);
+        overflow: hidden;
+        transition: height var(--transition-speed);
+    }
+
+    .nav-menu.active {
+        height: auto;
+        box-shadow: var(--box-shadow);
+    }
+
+    .nav-links {
+        flex-direction: column;
+        padding: var(--spacing-md);
+        gap: var(--spacing-md);
+    }
+
+    .nav-link {
+        display: block;
+        padding: var(--spacing-md);
+        text-align: center;
+    }
+
+    .footer-content {
+        flex-direction: column;
+        gap: var(--spacing-md);
+        text-align: center;
+    }
+
+    .hero-title {
+        font-size: 2rem;
+    }
+}
+
+/* ==============================
+   10. Animaciones
+============================== */
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+.fade-in {
+    animation: fadeIn var(--transition-speed) ease-in;
+}
+
+/* ==============================
+Carrusel de imágenes en la página de detalle de producto
+============================== */
+
+/* Estilos del carrusel - Simplificados y alineados con el carrusel existente */
+.producto-detalle .product-carousel {
+    position: relative;
+    width: 100%;
+    height: 500px;
+    overflow: hidden;
+    border-radius: var(--border-radius);
+    box-shadow: var(--box-shadow);
+}
+
+.producto-detalle .carousel-items {
+    display: flex;
+    transition: transform 0.5s ease;
+    height: 100%;
+}
+
+.producto-detalle .carousel-items img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    flex-shrink: 0;
+}
+
+.producto-detalle .carousel-prev,
+.producto-detalle .carousel-next {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    background: rgba(0, 0, 0, 0.5);
+    color: var(--background-color);
+    border: none;
+    padding: var(--spacing-md);
+    cursor: pointer;
+    border-radius: 50%;
+    z-index: 2;
+    transition: background var(--transition-speed);
+}
+
+.producto-detalle .carousel-prev:hover,
+.producto-detalle .carousel-next:hover {
+    background: rgba(0, 0, 0, 0.8);
+}
+
+.producto-detalle .carousel-prev {
+    left: var(--spacing-md);
+}
+
+.producto-detalle .carousel-next {
+    right: var(--spacing-md);
+}
+
+/* Estilos para la información del producto */
+.producto-detalle .products-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--spacing-lg);
+    padding: 0;
+}
+
+.producto-detalle .product-info {
+    background: var(--background-color);
+    padding: var(--spacing-lg);
+    border-radius: var(--border-radius);
+    box-shadow: var(--box-shadow);
+}
+
+.video-container {
+    margin-top: var(--spacing-lg);
+}
+
+.video-wrapper {
+    position: relative;
+    padding-bottom: 56.25%;
+    height: 0;
+    overflow: hidden;
+}
+
+.video-wrapper iframe {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    border-radius: var(--border-radius);
+}
+
+@media (max-width: 768px) {
+    .producto-detalle .products-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .producto-detalle .product-carousel {
+        height: 300px;
+    }
+}

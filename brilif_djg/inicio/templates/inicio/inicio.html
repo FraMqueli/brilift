@@ -1,0 +1,462 @@
+{% extends 'inicio/base.html' %}
+{% load static %}  {# Agregamos esta línea para cargar static #}
+
+{% block title %}Inicio - Brilift SPA{% endblock %}
+
+{% block content %}
+    
+
+    <!-- Sección de imágenes clickeables -->
+    <section class="filter-images">
+        <div class="filter-image">
+            <a href="{% url 'productos' %}?categoria=Arriendo">
+                <img src="{% static 'img/arriendo.jpeg' %}" alt="Productos en Arriendo">
+                <p>Sección de Arriendo</p>
+            </a>
+        </div>
+        <div class="filter-image">
+            <a href="{% url 'productos' %}?categoria=Venta">
+                <img src="{% static 'img/venta.jpeg' %}" alt="Productos en Venta">
+                <p>Sección de Venta</p>   
+            </a>
+        </div>
+    </section>
+        <section class="hero">
+            <div class="hero-content" style="text-align: center; padding: 50px 20px; background: linear-gradient(to bottom, rgba(0, 150, 136, 0.8), rgba(0, 188, 212, 0.8)), url('{% static 'img/hero-background.jpg' %}') no-repeat center center; background-size: cover; color: #fff; border-radius: 10px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);">
+                <h2 style="font-size: 2.5rem; font-weight: bold; margin-bottom: 20px; text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.5);">
+                    Descubre el mejor equipo
+                </h2>
+                <div class="text-carousel">
+                    <div class="carousel-slides">
+                        <p class="carousel-slide">
+                            Somos una empresa que nace al alero las necesidades del trabajo en altura de nuestros clientes, asegurando la integridad de los usuarios
+                        </p>
+                        <p class="carousel-slide">
+                            Nos caracterizamos siempre por  garantizar un servicio integral, con una logística ágil y oportuna.                        </p>
+                        <p class="carousel-slide">
+                            Nuestra política es apoyar tus proyectos con una asesoría constante, a un costo  acorde al mercado y con una amplia red  de proveedores  para dar  respuesta  a todas tus necesidades.                          </p>
+                    </div>
+                </div>
+                <a href="{% url 'productos' %}" class="hero-btn" style="display: inline-block; padding: 12px 25px; font-size: 1rem; font-weight: bold; color: #fff; background-color: #00796b; border-radius: 25px; text-decoration: none; transition: all 0.3s ease;">
+                    Ver Productos
+                </a>
+            </div>
+            <div class="hero-image" style="text-align: center;">
+                <img src="{% static 'img/logo.png' %}" alt="Imagen principal" style="width: 400px; height: auto;">
+            </div>            
+            <style>
+                .text-carousel {
+                    height: 100px;  /* Ajusta según el tamaño que necesites */
+                    margin: 20px 0;
+                    overflow: hidden;
+                    position: relative;
+                }
+        
+                .carousel-slides {
+                    position: relative;
+                    height: 100%;
+                }
+        
+                .carousel-slide {
+                    position: absolute;
+                    width: 100%;
+                    font-size: 1.2rem;
+                    line-height: 1.6;
+                    text-shadow: 1px 1px 4px rgba(0, 0, 0, 0.5);
+                    opacity: 0;
+                    transform: translateY(20px);
+                    transition: opacity 0.5s ease, transform 0.5s ease;
+                }
+        
+                .carousel-slide:nth-child(1) {
+                    animation: slideShow 12s infinite;
+                }
+        
+                .carousel-slide:nth-child(2) {
+                    animation: slideShow 12s infinite 4s;
+                }
+        
+                .carousel-slide:nth-child(3) {
+                    animation: slideShow 12s infinite 8s;
+                }
+        
+                @keyframes slideShow {
+                    0%, 100% {
+                        opacity: 0;
+                        transform: translateY(20px);
+                    }
+                    11.11%, 33.33% {
+                        opacity: 1;
+                        transform: translateY(0);
+                    }
+                    44.44% {
+                        opacity: 0;
+                        transform: translateY(-20px);
+                    }
+                }
+        
+                .hero-btn:hover {
+                    background-color: #004d40;
+                    transform: scale(1.05);
+                    box-shadow: 0 6px 12px rgba(0,0,0,0.2);
+                }
+                @media (max-width: 500px) {
+                    .text-carousel {
+                        height: 150px; /* Incrementar el tamaño para mejorar la legibilidad */
+                    }
+                    .carousel-slide {
+                        font-size: 1rem; /* Reducir el tamaño de fuente en móviles */
+                    }
+                    .hero-btn {
+                        font-size: 0.7rem; /* Botón más compacto en móviles */
+                        padding: 10px 20px;
+                    }
+                }
+                
+            </style>
+        </section>
+
+    <section class="featured-products">
+        <h2>Productos Destacados</h2>
+        <div class="products-grid">
+            {% for producto in productos %}
+                <div class="product-card">
+                    <div class="product-carousel">
+                        <div class="carousel-items">
+                            {% if producto.imagen_1 %}
+                                <img src="{{ producto.imagen_1.url }}" alt="{{ producto.nombre }}">
+                            {% endif %}
+                            {% if producto.imagen_2 %}
+                                <img src="{{ producto.imagen_2.url }}" alt="{{ producto.nombre }}">
+                            {% endif %}
+                            {% if producto.imagen_3 %}
+                                <img src="{{ producto.imagen_3.url }}" alt="{{ producto.nombre }}">
+                            {% endif %}
+                            {% if producto.imagen_4 %}
+                                <img src="{{ producto.imagen_4.url }}" alt="{{ producto.nombre }}">
+                            {% endif %}
+                            {% if producto.imagen_5 %}
+                                <img src="{{ producto.imagen_5.url }}" alt="{{ producto.nombre }}">
+                            {% endif %}
+                        </div>
+                        <button class="carousel-prev">←</button>
+                        <button class="carousel-next">→</button>
+                    </div>
+                    {% if producto.combustible %}
+                        <span 
+                            {% if producto.combustible == 'Eléctrico' %}
+                                style="background-color: #4e81f0; color: white; padding: 0.157rem 1rem; border-radius: 0px; font-weight: bold; text-align: right; margin-top: 2px;"
+                            {% elif producto.combustible == 'Bencina' %}
+                                style="background-color: #f39c12; color: white; padding: 0.157rem 1rem; border-radius: 0px; font-weight: bold; text-align: right; margin-top: 2px;"
+                            {% elif producto.combustible == 'Diesel' %}
+                                style="background-color: #423c3c; color: white; padding: 0.157rem 1rem; border-radius: 0px; font-weight: bold; text-align: right; margin-top: 2px;"
+                            {% else %} 
+                                style="background-color: grey; color: white; padding: 0.157rem 1rem; border-radius: 0px; font-weight: bold; text-align: right; margin-top: 2px;"
+                            {% endif %}
+                        >
+                            {{ producto.combustible}}
+                        </span>
+                    {% endif %}
+                    <div class="product-info">
+                        <h3>{{ producto.nombre }}</h3>
+                        <p class="product-description">{{ producto.descripcion|truncatechars:100 }}</p>
+                        <div class="product-meta">
+                            {% if producto.categoria == 'Venta' %}
+                                <span class="price">${{ producto.precio }}</span>
+                            {% endif %}
+                            <span class="likes">❤️ {{ producto.cantidad_me_gusta }}</span>
+                            <span class="status {% if producto.estado == 'Disponible' %}disponible{% else %}no-disponible{% endif %}">{{ producto.estado }}</span>
+                        </div>
+                        <a href="{% url 'producto_detail' producto.id %}" class="product-btn">Ver detalles</a>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    </section>
+
+    <script>
+        // Código JavaScript para el carrusel
+        document.querySelectorAll('.product-carousel').forEach(carousel => {
+            const items = carousel.querySelector('.carousel-items');
+            const prevBtn = carousel.querySelector('.carousel-prev');
+            const nextBtn = carousel.querySelector('.carousel-next');
+            let currentIndex = 0;
+
+            nextBtn.addEventListener('click', () => {
+                currentIndex = (currentIndex + 1) % items.children.length;
+                updateCarousel();
+            });
+
+            prevBtn.addEventListener('click', () => {
+                currentIndex = (currentIndex - 1 + items.children.length) % items.children.length;
+                updateCarousel();
+            });
+
+            function updateCarousel() {
+                items.style.transform = `translateX(-${currentIndex * 100}%)`;
+            }
+        });
+    </script>
+
+<style>
+    
+    .filter-images {
+        display: flex;
+        justify-content: space-between;
+        gap: 0;
+        width: 100vw;
+        margin-left: calc(-50vw + 50%);
+        margin-right: calc(-50vw + 50%);
+        margin-top: calc(-1.95vw);
+    }
+
+    .filter-image {
+        flex: 2;
+        text-align: center;
+        position: relative; /* Para posicionar el texto */
+        overflow: hidden;
+    }
+
+    .filter-image img {
+        width: 100%;
+        height: 450px;
+        object-fit: cover;
+        transition: transform 0.3s ease;
+    }
+
+    .filter-image img:hover {
+        transform: scale(1.05);
+    }
+
+    /* Estilo actualizado para el texto */
+    .filter-image p {
+        position: absolute;
+        bottom: 200px; /* Distancia desde el fondo */
+        left: 0;
+        right: 0;
+        font-size: 60px; /* Texto más grande */
+        font-weight: bold;
+        color: white;
+        text-shadow: 4px 4px 0px rgba(255, 0, 0, 0.7); /* Sombra para mejor legibilidad */
+        margin: 0;
+        z-index: 1; /* Asegura que el texto esté encima de la imagen */
+    }
+
+    /* Ajustes responsive */
+    @media (max-width: 768px) {
+        .filter-images {
+            flex-direction: column;
+        }
+
+        .filter-image img {
+            height: 200px;
+        }
+
+        .filter-image p {
+            font-size: 1.7rem; /* Texto más pequeño en móviles */
+            bottom: 80px; /* Ajusta la distancia para que no quede tan cerca del borde inferior */
+        }
+    }
+        /* Estilos para la sección de productos destacados */
+        .products-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: var(--spacing-lg);
+            padding: var(--spacing-lg);
+        }
+
+        .product-card {
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            height: 100%;
+            background: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            transition: transform 0.3s ease;
+        }
+
+        .product-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .product-info {
+            flex-grow: 1;
+            padding: 10px;
+            display: flex;
+            flex-direction: column;
+            min-height: 250px; /* Asegura espacio mínimo para el contenido */
+            position: relative;
+        }
+
+        .product-info h3 {
+            margin: 0 0 15px;
+            color: #333;
+            font-size: 1.25rem;
+        }
+
+        .product-description {
+            color: #666;
+            line-height: 1.5;
+            margin-bottom: 80px; /* Espacio para meta y botón */
+            flex-grow: 1;
+            overflow: hidden; /* Por si el texto es muy largo */
+            text-overflow: ellipsis;
+            white-space: nowrap; /* Evita que el texto se ajuste a varias líneas */
+            display: -webkit-box;
+            -webkit-line-clamp: 3; /* Limita el número de líneas a mostrar */
+            -webkit-box-orient: vertical;
+        }
+
+        /* Ajustes para dispositivos móviles */
+        @media (max-width: 768px) {
+            .products-grid {
+                grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+                padding: 15px;
+            }
+
+            .product-description {
+                font-size: 0.9rem; /* Ajusta el tamaño de la fuente en pantallas pequeñas */
+                margin-bottom: 60px; /* Ajusta el margen inferior */
+                -webkit-line-clamp: 2; /* Reduce las líneas visibles a 2 en móviles */
+            }
+}
+
+    .product-meta {
+        position: absolute; /* Posicionamiento absoluto */
+        bottom: 50px; /* Distancia desde el fondo, ajustar según necesites */
+        left: 20px;
+        right: 20px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 10px 0;
+        border-top: 1px solid #eee;
+        background-color: #fff; /* Para asegurar que se vea bien */
+    }
+
+    .price {
+        font-size: 1.25rem;
+        font-weight: bold;
+        color: #00796b;
+    }
+
+    .likes {
+        display: flex;
+        align-items: center;
+        gap: 5px;
+    }
+
+    .status {
+        padding: 5px 10px;
+        border-radius: 20px;
+        font-size: 0.875rem;
+    }
+
+    .status.disponible {
+        background: #2ecc71;
+        color: #fff;
+    }
+
+    .status.no-disponible {
+        background: #e74c3c;
+        color: #fff;
+    }
+
+    .product-btn {
+        position: absolute; /* Asegura que el botón se ubique en una posición específica */
+        bottom: 15px; /* Distancia desde la parte inferior de la tarjeta */
+        left: 1.25%; /* Posiciona horizontalmente al centro */
+        width: calc(100% - 40px);; /* Ajusta el ancho del botón */
+        padding: 10px 20px; /* Tamaño del botón */
+        background: #e73c6d; /* Color de fondo */
+        color: #fff; /* Color del texto */
+        text-align: center; /* Centra el texto dentro del botón */
+        text-decoration: none; /* Elimina el subrayado */
+        border-radius: 8px; /* Bordes redondeados */
+        transition: background 0.3s ease, transform 0.2s ease;
+    }
+
+    .product-btn:hover {
+        background-color: #111213;
+        transform: scale(1.05);
+    }
+
+    /* Estilos para el carrusel */
+    .product-carousel {
+        position: relative;
+        height: 300px;
+        overflow: hidden;
+    }
+
+    .carousel-items {
+        display: flex;
+        transition: transform 0.3s ease;
+        height: 100%;
+    }
+
+    .carousel-items img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        flex-shrink: 0;
+    }
+
+    .carousel-prev,
+    .carousel-next {
+        position: absolute;
+        top: 50%;
+        transform: translateY(-50%);
+        background: rgba(0, 0, 0, 0.5);
+        color: #fff;
+        border: none;
+        padding: 10px 15px;
+        cursor: pointer;
+        border-radius: 50%;
+        z-index: 2;
+        transition: background 0.3s ease;
+    }
+
+    .carousel-prev:hover,
+    .carousel-next:hover {
+        background: rgba(0, 0, 0, 0.8);
+    }
+
+    .carousel-prev {
+        left: 15px;
+    }
+
+    .carousel-next {
+        right: 15px;
+    }
+
+    /* Media queries para responsividad */
+    @media (max-width: 768px) {
+        .products-grid {
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            padding: 15px;
+        }
+
+        .product-carousel {
+            height: 250px;
+        }
+
+        .product-info {
+            padding: 15px;
+        }
+    }
+    .hero-image {
+        display: flex;
+        justify-content: center; /* Centra horizontalmente */
+        align-items: center;    /* Centra verticalmente */
+        height: 100%;           /* Asegúrate de que tenga altura */
+        margin-top: 20px;
+    }
+
+    .hero-image img {
+        max-width: 100%;        /* Escala la imagen según el contenedor */
+        height: auto;           /* Mantén la proporción de la imagen */
+    }
+</style>
+{% endblock %}

@@ -1,0 +1,84 @@
+{% extends 'inicio/base.html' %}
+
+{% block title %}Nosotros - Ecogab SPA{% endblock %}
+
+{% block content %}
+<!-- Fondo para toda la página -->
+<style>
+    body {
+        background-image: url('/static/img/fondo_nosotros.avif');
+        background-size: cover;
+        background-position: center;
+        background-attachment: fixed;
+        background-repeat: no-repeat;
+        font-family: 'Roboto', sans-serif; /* Fuente elegante */
+    }
+
+    .content-card {
+        background-color: rgba(255, 255, 255, 0.9); /* Fondo blanco con transparencia */
+        border-radius: 10px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        padding: 2rem;
+        max-width: 800px;
+        margin: 2rem auto;
+        font-family: 'Merriweather', serif; /* Fuente elegante para tarjetas */
+    }
+
+    .section-title {
+        color: #2c3e50; /* Azul oscuro elegante */
+        font-family: 'Merriweather', serif; /* Fuente especial para títulos */
+    }
+
+    .content-paragraph {
+        color: #555;
+        font-size: 1.1rem;
+        line-height: 1.8;
+    }
+
+    .cta-button {
+        font-family: 'Roboto', sans-serif;
+        font-size: 1.1rem;
+        background-color: #f1f510; /* Azul más elegante */
+        color: rgba(0, 0, 0, 0.836);
+        font-weight: bold;
+        padding: 0.3rem 2rem;
+        border-radius: 5px;
+        transition: background-color 0.3s ease;
+    }
+
+    .cta-button:hover {
+        background-color: #2980b9; /* Azul más oscuro al pasar el mouse */
+    }
+</style>
+
+<section class="content-card">
+    <h1 class="text-4xl font-bold text-center mb-8 section-title">Quiénes Somos</h1>
+    <div class="text-center">
+        <p class="text-lg leading-relaxed mb-8 content-paragraph">
+            Somos una empresa emergente dedicada a satisfacer las necesidades del mercado de la construcción para medianas y pequeñas empresas. Nos enfocamos en ofrecer productos de alta calidad y manufactura nacional que garanticen un servicio integral para su inversión.
+        </p>
+    </div>
+
+    <h2 class="text-2xl font-semibold mb-4 section-title">Nuestra Experiencia</h2>
+    <p class="leading-relaxed mb-6 content-paragraph">
+        Con más de 20 años de experiencia en el sector, nuestros fabricantes desarrollan maquinaria especializada que asegura equipos de alto nivel y calidad superior, en comparación con muchos productos importados.
+    </p>
+
+    <h2 class="text-2xl font-semibold mb-4 section-title">Nuestro Compromiso</h2>
+    <p class="leading-relaxed content-paragraph">
+        Garantizamos un servicio técnico especializado que respalda la mantención de los equipos, asegurando el mejor soporte para su inversión.
+    </p>
+</section>
+
+<section class="content-card">
+    <h2 class="text-3xl font-bold text-center mb-8 section-title">¿Listo para comenzar?</h2>
+    <p class="text-lg text-center mb-8 content-paragraph">
+        Te invitamos a explorar nuestro catálogo y a cotizar con nosotros. Estamos listos para ofrecerte soluciones de calidad para tus necesidades.
+    </p>
+    <div class="text-center">
+        <a href="{% url 'productos' %}" class="cta-button">
+            Ver Catálogo
+        </a>
+    </div>
+</section>
+{% endblock %}

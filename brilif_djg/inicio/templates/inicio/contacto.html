@@ -1,0 +1,367 @@
+{% extends 'inicio/base.html' %}
+{% load static %}
+
+
+{% block title %}Contacto | Brilift SPA{% endblock %}
+
+{% block content %}
+<section class="contact-page">
+    <div class="contact-container" style="display: flex; justify-content: space-between; gap: 30px;">
+        <div class="contact-left" style="width: 48%;">
+            <div class="contact-header">
+                <div class="social-media">
+                    <ul class="social-icons" style="list-style: none; padding: 0; display: flex; gap: 20px;">
+                        <img src="{% static 'img/logo.png' %}" alt="Logotipo de Brilift SPA" style="width: 110px; height: auto;" class="contact-logo" >
+                        <a href="https://web.facebook.com/people/Ecogabcl/100063612480601/" target="_blank" rel="noopener noreferrer">
+                            <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/b/b8/2021_Facebook_icon.svg/2048px-2021_Facebook_icon.svg.png" alt="Facebook" width="100" height="100">
+                        </a>
+                        <a href="https://www.instagram.com/ecogab.cl/" target="_blank" rel="noopener noreferrer">
+                             <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/9/95/Instagram_logo_2022.svg/2048px-Instagram_logo_2022.svg.png" alt="Instagram" width="100" height="100">
+                        </a>
+                        <a href="https://wa.me/56968446574?text=Hola%2C%20me%20gustaría%20contactarlos%20desde%20la%20web." target="_blank" rel="noopener noreferrer">
+                            <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/6/6b/WhatsApp.svg/2048px-WhatsApp.svg.png" alt="WhatsApp" width="100" height="100">
+                        </a>
+                    </ul>
+                </div>
+                <h1 class="contact-title">Contáctanos</h1>
+            </div>
+
+            <p class="contact-intro">Si tienes alguna pregunta o inquietud, no dudes en ponerte en contacto con nosotros. ¡Estaremos encantados de ayudarte!</p>
+
+            <!-- Formulario de contacto -->
+            <div class="contact-form">
+                <h2>Información de contacto</h2>
+                <form id="contactForm" onsubmit="return false;">
+                    <div class="form-group">
+                        <label for="nombre">Nombre completo *</label>
+                        <input type="text" id="nombre" name="nombre" required class="form-input">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="telefono">Número de teléfono *</label>
+                        <input type="tel" id="telefono" name="telefono" required pattern="[0-9]+" class="form-input" placeholder="Ejemplo: 56912345678">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="mensaje">Mensaje (opcional)</label>
+                        <textarea id="mensaje" name="mensaje" maxlength="200" class="form-input" rows="3" placeholder="Escribe aquí tu mensaje..."></textarea>
+                        <div class="char-count">0/200</div>
+                    </div>
+
+                    <div class="cart-summary">
+                        <button onclick="enviarPorEmail()" class="email-order-btn">
+                            <i class="fas fa-envelope"></i>
+                            Enviar por Email
+                        </button>
+                        <button onclick="enviarPorWhatsApp()" class="whatsapp-order-btn">
+                            <i class="fab fa-whatsapp"></i>
+                            Enviar por WhatsApp
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+        </div>
+        <div class="contact-right" style="width: 50%;">
+            <div class="maps-container">
+                <div class="map-box">
+                    <h2 class="map-title">Oficina Comercial la Florida</h2>
+                    <div class="map-wrapper">
+                        <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3325.418537873568!2d-70.57010389999999!3d-33.5425004!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x9662d121bb0dc953%3A0xa6857aa743d956d7!2sAv.%20La%20Florida%209650%2C%20La%20Florida%2C%20Regi%C3%B3n%20Metropolitana!5e0!3m2!1sen!2scl!4v1736277453181!5m2!1sen!2scl" 
+                        width="100%" height="300px" style="border: none;"></iframe>
+                    </div>
+                </div>
+                
+                <div class="map-box">
+                    <h2 class="map-title">Bodegas</h2>
+                    <div class="map-wrapper">
+                        <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3322.3884254397476!2d-70.631345!3d-33.6211693!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x9662d82e7aa0810b%3A0xdf72afe6613a87f9!2sLos%20Manzanos%202779%2C%208340392%20La%20Pintana%2C%20Regi%C3%B3n%20Metropolitana!5e0!3m2!1sen!2scl!4v1736350764416!5m2!1sen!2sLos%20Manzanos%202779%2C%208340392%20La%20Pintana%2C%20Regi%C3%B3n%20Metropolitana"
+                        width="100%" height="300px" style="border: none;"></iframe>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<style>
+    /* Estilos para el formulario de contacto */
+    .contact-form {
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+        max-width: 500px;
+        margin: 0 auto;
+        padding: 20px;
+        background-color: #f9f9f9;
+        border-radius: 8px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .form-group {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .form-group label {
+        font-size: 1.1rem;
+        color: #333;
+        margin-bottom: 8px;
+    }
+
+    .form-group input, .form-group textarea {
+        padding: 12px;
+        font-size: 1rem;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        transition: all 0.3s ease;
+    }
+
+    .form-group input:focus, .form-group textarea:focus {
+        border-color: #4CAF50;
+        outline: none;
+    }
+
+    .form-group textarea {
+        resize: vertical;
+    }
+
+    .btn-primary {
+        padding: 12px;
+        font-size: 1.1rem;
+        color: white;
+        background-color: #4CAF50;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+    }
+
+    .btn-primary:hover {
+        background-color: #45a049;
+    }
+
+    /* Estilos para las redes sociales */
+    .social-icons {
+        display: flex;
+        justify-content: center;
+        gap: 15px;
+        margin-top: 20px;
+        list-style-type: none;
+        padding: 0;
+    }
+
+    .social-icons a {
+        display: inline-block;
+    }
+
+    .social-icons img {
+        border-radius: 50%;
+        transition: transform 0.3s ease;
+    }
+
+    .social-icons img:hover {
+        transform: scale(1.1);
+    }
+    /* Estilos para los mapas */
+    .maps-container {
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+    }
+
+    .map-box {
+        background: #fff;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        overflow: hidden;
+    }
+
+    .map-title {
+        font-size: 1.5rem;
+        color: #333;
+        padding: 15px;
+        margin: 0;
+        background: #f5f5f5;
+        border-bottom: 1px solid #eee;
+    }
+
+    .map-wrapper {
+        padding: 10px;
+    }
+
+    /* Media queries para responsividad */
+    @media (max-width: 768px) {
+        .contact-container {
+            flex-direction: column !important;
+        }
+
+        .contact-left, .contact-right {
+            width: 100% !important;
+        }
+
+        .social-icons {
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .social-icons img {
+            width: 60px;
+            height: 60px;
+        }
+
+        .contact-logo {
+            width: 120px;
+            height: auto;
+        }
+
+        .map-wrapper iframe {
+            height: 250px;
+        }
+    }
+
+    /* Ajuste adicional para pantallas muy pequeñas */
+    @media (max-width: 480px) {
+        .social-icons img {
+            width: 50px;
+            height: 50px;
+        }
+
+        .contact-form {
+            padding: 15px;
+        }
+
+        .map-title {
+            font-size: 1.2rem;
+            padding: 10px;
+        }
+    }
+    /* Estilo para el botón de Email (color azul) */
+    .email-order-btn {
+        padding: 1rem 1.5rem;
+        font-size: 1rem;
+        margin: 0.5rem;  /* Añadir espacio alrededor de cada botón */
+        width: auto;
+        border-radius: 25px;
+        background-color: #4a5568;  /* Azul */
+        color: white;
+        border: none;
+        transition: all 0.3s ease;
+    }
+
+    .email-order-btn:hover {
+        background-color: #4a5568;  /* Azul más oscuro al pasar el ratón */
+        transform: translateY(-1px);
+    }
+
+    /* Estilo para el botón de WhatsApp (color verde) */
+    .whatsapp-order-btn {
+        padding: 1rem 1.5rem;
+        font-size: 1rem;
+        margin: 0.5rem;  /* Añadir espacio alrededor de cada botón */
+        width: auto;
+        border-radius: 25px;
+        background-color: #25d366;  /* Verde de WhatsApp */
+        color: white;
+        border: none;
+        transition: all 0.3s ease;
+    }
+
+    .whatsapp-order-btn:hover {
+        background-color: #128c7e;  /* Verde más oscuro al pasar el ratón */
+        transform: scale(1.05);
+    }
+
+    /* Asegurar que los botones se ajusten bien en pantallas pequeñas */
+    @media (max-width: 480px) {
+        .cart-summary {
+            flex-direction: column;  /* Coloca los botones uno debajo del otro */
+            gap: 1.5rem;  /* Aumenta el espacio entre los botones */
+        }
+
+        .email-order-btn, .whatsapp-order-btn {
+            width: 100%;  /* Hacer los botones más anchos en pantallas pequeñas */
+        }
+    }
+    /* Asegurar que los botones se ajusten bien en pantallas pequeñas */
+    @media (max-width: 480px) {
+        .cart-summary {
+            flex-direction: column;  /* Coloca los botones uno debajo del otro */
+            gap: 1.5rem;  /* Aumenta el espacio entre los botones */
+        }
+
+        .email-order-btn, .whatsapp-order-btn {
+            width: 100%;  /* Hacer los botones más anchos en pantallas pequeñas */
+        }
+    }
+
+</style>
+<script>
+    // Lógica de validación y envío por WhatsApp
+    function validarFormulario() {
+        const nombre = document.getElementById('nombre').value.trim();
+        const telefono = document.getElementById('telefono').value.trim();
+    
+        if (!nombre) {
+            alert('Por favor, ingresa tu nombre');
+            return false;
+        }
+    
+        if (!telefono) {
+            alert('Por favor, ingresa tu número de teléfono');
+            return false;
+        }
+    
+        if (!/^[0-9]+$/.test(telefono)) {
+            alert('El número de teléfono solo debe contener números');
+            return false;
+        }
+    
+        return true;
+    }
+    
+    function enviarPorWhatsApp() {
+        if (!validarFormulario()) return;
+    
+        const nombre = document.getElementById('nombre').value.trim();
+        const telefono = document.getElementById('telefono').value.trim();
+        const mensaje = document.getElementById('mensaje').value.trim();
+    
+        let mensajeCompleto = `*Nuevo mensaje de contacto*\n\n`;
+        mensajeCompleto += `*Datos de contacto:*\n`;
+        mensajeCompleto += `Nombre: ${nombre}\n`;
+        mensajeCompleto += `Teléfono: ${telefono}\n`;
+        if (mensaje) {
+            mensajeCompleto += `Mensaje: ${mensaje}\n`;
+        }
+    
+        const url = `https://wa.me/56968446574?text=${encodeURIComponent(mensajeCompleto)}`;
+        window.open(url, '_blank');
+    }
+    function enviarPorEmail() {
+        if (!validarFormulario()) return;
+
+        const nombre = document.getElementById('nombre').value.trim();
+        const telefono = document.getElementById('telefono').value.trim();
+        const mensaje = document.getElementById('mensaje').value.trim();
+        
+        // Construir el cuerpo del correo solo con la información del formulario
+        let mailtoBody = `Nuevo contacto desde el formulario:\n\n`;
+        mailtoBody += `Nombre: ${nombre}\n`;
+        mailtoBody += `Teléfono: ${telefono}\n`;
+        if (mensaje) {
+            mailtoBody += `Mensaje: ${mensaje}\n`;
+        }
+
+        // Crear el enlace mailto con el cuerpo del mensaje
+        const mailtoLink = `mailto:contacto@ecogab.cl?subject=${encodeURIComponent('Nuevo contacto - Ecogab')}&body=${encodeURIComponent(mailtoBody)}`;
+        
+        // Redirigir al enlace mailto para abrir el cliente de correo
+        window.location.href = mailtoLink;
+
+        // Limpiar el formulario después de enviar
+        document.getElementById('cartForm').reset();
+    }
+
+    </script>
+{% endblock %}

@@ -1,0 +1,28 @@
+{# templates/admin/custom_login.html #}
+{% extends "admin/login.html" %}
+{% load i18n %}
+
+{% block content %}
+{{ block.super }}
+<div style="text-align: center; margin-top: 20px;">
+    <a href="{{ password_reset_url }}" class="password-reset-link">
+        {% trans '¿Olvidaste tu contraseña?' %}
+    </a>
+</div>
+{% endblock %}
+
+{% block extrastyle %}
+{{ block.super }}
+<style>
+    .password-reset-link {
+        display: inline-block;
+        padding: 8px 16px;
+        color: #447e9b;
+        text-decoration: none;
+    }
+    .password-reset-link:hover {
+        color: #003366;
+        text-decoration: underline;
+    }
+</style>
+{% endblock %}

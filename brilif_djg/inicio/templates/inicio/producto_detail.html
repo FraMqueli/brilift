@@ -1,0 +1,304 @@
+{% extends 'inicio/base.html' %}
+
+{% block title %}{{ producto.nombre }} - Detalles{% endblock %}
+
+{% block content %}
+<section class="producto-detalle fade-in">
+    <!-- El resto del código anterior se mantiene igual hasta product-content -->
+    <div class="container">
+        <div class="producto-detalle-header">
+            <h1 class="hero-title">{{ producto.nombre }}</h1>
+            <div class="status-container">
+                <span class="status {% if producto.estado == 'Disponible' %}disponible{% else %}no-disponible{% endif %}">
+                    {{ producto.estado }}
+                </span>
+                {% if combustible %}
+                    <span class="combustible-badge
+                        {% if combustible == 'Eléctrico' %}electric
+                        {% elif combustible == 'Bencina' %}gasoline
+                        {% elif combustible == 'Diesel' %}diesel
+                        {% else %}other{% endif %}">
+                        {{ combustible }}
+                    </span>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="products-grid">
+            <!-- Carrusel de imágenes -->
+            <div class="product-carousel">
+                <div class="carousel-items">
+                    {% if producto.imagen_1 %}
+                        <img src="{{ producto.imagen_1.url }}" alt="{{ producto.nombre }}">
+                    {% endif %}
+                </div>
+                <button class="carousel-prev">←</button>
+                <button class="carousel-next">→</button>
+            </div>
+
+            <!-- Información del producto -->
+            <div class="product-info-container">
+                {% if producto.categoria == 'Venta' %}
+                    <div class="price-container">
+                        <span class="price">${{ producto.precio }}</span>
+                    </div>
+                {% endif %}
+
+                <div class="product-content">
+                    <div class="description-section">
+                        <h3>Descripción</h3>
+                        <p>{{ producto.descripcion }}</p>
+                    </div>
+
+                    <div class="action-section">
+                        <div class="social-actions">
+                            <div class="likes-container">
+                                <div class="likes-group">
+                                    <span class="likes">
+                                        <span>❤️</span>
+                                        <span id="likes-count">{{ producto.cantidad_me_gusta }}</span>
+                                    </span>
+                                    <button id="like-btn" {% if producto_liked %}disabled{% endif %} 
+                                            class="like-btn {% if producto_liked %}liked{% endif %}">
+                                        {% if producto_liked %}Ya diste Me Gusta{% else %}Dar Me Gusta{% endif %}
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="buttons-container">
+                            <button onclick="addToCart('{{ producto.id }}', '{{ producto.nombre }}', '{{ producto.categoria }}', '{{ producto.precio|default:'Consultar' }}', '{{ producto.imagen_1.url }}')" class="add-to-cart-btn">
+                                <i class="fas fa-cart-plus"></i>
+                                Añadir al carrito
+                            </button>
+                            <a href="{% url 'productos' %}" class="back-btn">Volver a Productos</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        {% if producto.video_url %}
+        <div class="video-container">
+            <h3>Video del Producto</h3>
+            <div class="video-wrapper">
+                <iframe 
+                    src="https://www.youtube.com/embed/{{ producto.video_url }}" 
+                    frameborder="0" 
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                    allowfullscreen>
+                </iframe>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</section>
+
+<style>
+    .producto-detalle {
+        padding: 2rem 0;
+    }
+
+    .container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 0 1rem;
+    }
+
+    .producto-detalle-header {
+        margin-bottom: 2rem;
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        flex-wrap: wrap;
+    }
+
+    .hero-title {
+        margin: 0;
+        font-size: 2rem;
+        color: #333;
+    }
+
+    .status-container {
+        display: flex;
+        gap: 1rem;
+        align-items: center;
+    }
+
+    .status {
+        padding: 0.5rem 1rem;
+        border-radius: 4px;
+        font-weight: 600;
+    }
+
+    .combustible-badge {
+        padding: 0.157rem 1rem;
+        border-radius: 10px;
+        font-weight: bold;
+        color: white;
+    }
+
+    .combustible-badge.electric { background-color: #4e81f0; }
+    .combustible-badge.gasoline { background-color: #f39c12; }
+    .combustible-badge.diesel { background-color: #000000; }
+    .combustible-badge.other { background-color: grey; }
+
+    .products-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 2rem;
+        margin-bottom: 2rem;
+    }
+
+    .product-info-container {
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+    }
+
+    .price-container {
+        margin-bottom: 1.5rem;
+    }
+
+    .price {
+        font-size: 1.5rem;
+        font-weight: bold;
+        color: #2c3e50;
+    }
+
+    .product-content {
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+    }
+
+    .description-section {
+        flex-grow: 1;
+    }
+
+    .description-section h3 {
+        margin-bottom: 1rem;
+        color: #333;
+    }
+
+    .description-section p {
+        margin-bottom: 1.5rem;
+        line-height: 1.6;
+        color: #666;
+    }
+
+    .action-section {
+        margin-top: auto;
+        border-top: 1px solid #eee;
+        padding-top: 1.5rem;
+    }
+
+    .social-actions {
+        margin-bottom: 1rem;
+    }
+
+    .likes-container {
+        margin-bottom: 1.5rem;
+    }
+
+    .likes-group {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        width: 100%;
+    }
+
+    .likes {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-size: 1.1rem;
+    }
+
+    .like-btn {
+        padding: 0.5rem 1rem;
+        border: none;
+        border-radius: 4px;
+        background-color: #ff4b4b;
+        color: white;
+        cursor: pointer;
+        transition: background-color 0.2s;
+        width: auto;
+    }
+
+    .like-btn:hover:not(:disabled) {
+        background-color: #ff3333;
+    }
+
+    .like-btn:disabled {
+        background-color: #ccc;
+        cursor: not-allowed;
+    }
+
+    .buttons-container {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+        text-align: center;
+    }
+    
+
+
+    .back-btn {
+        display: block;
+        width: 100%;
+        padding: 0.75rem;
+        text-align: center;
+        background-color: #e73c6d;
+        color: white;
+        text-decoration: none;
+        border-radius: 4px;
+        transition: background-color 0.2s;
+    }
+
+    .back-btn:hover {
+        background-color: #111213;
+    }
+
+    @media (max-width: 768px) {
+        .products-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .producto-detalle-header {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+
+        .likes-group {
+            flex-direction: column;
+            gap: 1rem;
+            align-items: flex-start;
+        }
+
+        .like-btn {
+            width: 100%;
+        }
+    }
+</style>
+
+<script>
+    document.getElementById('like-btn').addEventListener('click', function() {
+        fetch('{% url "producto_detail" producto.id %}', {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': '{{ csrf_token }}'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                document.getElementById('likes-count').textContent = data.likes_count;
+                this.disabled = true;
+                this.textContent = 'Ya diste Me Gusta';
+                this.classList.add('liked');
+            }
+        });
+    });
+</script>
+{% endblock %}

@@ -1,0 +1,53 @@
+# Python general
+*.pyc
+*.pyo
+*.pyd
+__pycache__/
+*.sqlite3
+
+# Entornos virtuales
+myenv/
+env/
+venv/
+
+# Archivos de entorno
+.env
+
+# Archivos de compilación
+*.log
+*.pot
+*.py[co]
+*.so
+*.egg
+*.egg-info
+dist/
+build/
+*.manifest
+
+# Archivos del sistema operativo
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Archivos estáticos recopilados
+/staticfiles/
+
+# Media cargada por usuarios
+/media/
+*/media/
+
+# Archivos de configuración de editor/IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Archivos de administración de dependencias
+Pipfile
+Pipfile.lock
+poetry.lock
+
+
+cloudflared
+cloudflared.exe
+config.yml

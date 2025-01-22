@@ -1,0 +1,439 @@
+{% extends 'inicio/base.html' %}
+
+{% block title %}Carrito de Cotización{% endblock %}
+
+{% block content %}
+<div class="cart-container">
+    <h1>Tu Carrito</h1>
+    <div class="contact-form">
+        <h2>Información de contacto</h2>
+        <form id="cartForm" onsubmit="return false;">
+            <div class="form-group">
+                <label for="nombre">Nombre completo *</label>
+                <input type="text" id="nombre" name="nombre" required 
+                       class="form-input">
+            </div>
+            
+            <div class="form-group">
+                <label for="telefono">Número de teléfono *</label>
+                <input type="tel" id="telefono" name="telefono" required 
+                       pattern="[0-9]+" class="form-input"
+                       placeholder="Ejemplo: 56912345678">
+            </div>
+            
+            <div class="form-group">
+                <label for="mensaje">Mensaje (opcional)</label>
+                <textarea id="mensaje" name="mensaje" maxlength="200" 
+                         class="form-input" rows="3"
+                         placeholder="Escribe aquí tu mensaje..."></textarea>
+                <div class="char-count">0/200</div>
+            </div>
+        </form>
+    <div id="cart-items" class="cart-items"></div>    
+    <!-- Botones de envío -->
+    <div class="cart-summary">
+        <button onclick="enviarPorEmail()" class="email-order-btn">
+            <i class="fas fa-envelope"></i>
+            Enviar por Email
+        </button>
+        <button onclick="enviarPorWhatsApp()" class="whatsapp-order-btn">
+            <i class="fab fa-whatsapp"></i>
+            Enviar por WhatsApp
+        </button>
+    </div>
+</div>
+
+<style>
+/* Prefijo cart- para evitar interferencias con otros estilos */
+.cart-container {
+    max-width: 800px;
+    margin: 2rem auto;
+    padding: 1rem;
+}
+
+/* Estilo para el contenedor de los items del carrito */
+.cart-items {
+    margin: 2rem 0;
+    display: flex;
+    flex-direction: column; /* Asegura que los items estén en columna */
+    align-items: center; /* Centra los elementos horizontalmente */
+    gap: 1rem; /* Espacio entre los items */
+    width: 100%;
+    box-sizing: border-box; /* Incluye el padding y border en el ancho total */
+}
+
+/* Estilo para cada item dentro del carrito */
+.cart-item {
+    display: grid;
+    grid-template-columns: 50px 1fr 1fr auto;  /* 50px para la imagen, luego 3 columnas para texto y botones */
+    gap: 1rem;
+    padding: 1rem;
+    border-bottom: 1px solid #eee;
+    align-items: center;
+    width: 100%;
+    max-width: 700px; /* Limita el ancho de los items */
+    margin: 0 auto; /* Centra los items horizontalmente */
+    box-sizing: border-box; /* Asegura que los padding y bordes no desborden el tamaño */
+}
+
+/* Estilo para la imagen del producto */
+.cart-item-image {
+    width: 50px;
+    height: 50px;
+    object-fit: cover;
+    border-radius: 5px;
+}
+
+/* Estilo para los detalles del producto */
+.cart-item-details {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.cart-item-name {
+    font-weight: bold;
+    color: #333;
+    text-decoration: none;
+}
+
+.cart-item-category {
+    font-size: 0.9rem;
+    color: #777;
+}
+
+.cart-item-price {
+    font-size: 1rem;
+    font-weight: bold;
+    color: #2c3e50;
+}
+
+.remove-item {
+    color: #e74c3c;
+    cursor: pointer;
+    display: flex;
+    align-items: right;
+    justify-content: flex-end;
+}
+
+.remove-item i {
+    font-size: 1.2rem;
+}
+
+/* Media query para pantallas pequeñas (móviles) */
+@media (max-width: 500px) {
+    .cart-item {
+        align-items: flex-start; /* Alinear al inicio horizontalmente */
+    }
+
+    .cart-item {
+        display: flex; /* Cambiar a flex */
+        flex-direction: column; /* Ordenar los elementos en columna */
+        align-items: flex-start; /* Alinear elementos al inicio horizontalmente */
+        gap: 0.5rem; /* Espacio entre los elementos */
+        padding: 0.8rem;
+        max-width: 100%; /* Asegurarse de que el item ocupe el 100% del contenedor */
+        position: relative; /* Para posicionar el ícono de borrar */
+    }
+
+    .cart-item-image {
+        width: 150px;
+        height: 100px; /* Reducir el tamaño de la imagen en pantallas pequeñas */
+    }
+
+    .cart-item-details {
+        width: 100%; /* Asegurarse de que los detalles ocupen todo el ancho */
+    }
+
+    .cart-item-name {
+        font-size: 0.9rem; /* Reducir el tamaño de la fuente del nombre */
+    }
+
+    .cart-item-price {
+        font-weight: bold;
+        margin-top: 0.5rem;
+        text-align: left;
+    }
+
+    .cart-summary {
+        flex-direction: column; /* Asegurarse de que los botones estén uno debajo del otro */
+        gap: 1rem;
+    }
+    .remove-item {
+        position: absolute; /* Fija el ícono de borrar */
+        top: 83%; /* Alinear hacia la parte superior */
+        right: 20%; /* Alinear al lado derecho */
+        color: #e74c3c;
+        cursor: pointer;
+    }
+    .remove-item i {
+        font-size: 1.5rem;
+    }
+
+    .email-order-btn,
+    .whatsapp-order-btn {
+        width: 100%; /* Asegurarse de que los botones ocupen el 100% del ancho */
+        padding: 12px; /* Reducir el padding para adaptarse a pantallas pequeñas */
+        font-size: 1rem; /* Ajustar el tamaño de la fuente */
+    }
+}
+
+
+.whatsapp-order-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 24px;
+    background-color: #25d366;
+    color: white;
+    border: none;
+    border-radius: 25px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-weight: bold;
+}
+
+.whatsapp-order-btn:hover {
+    background-color: #128c7e;
+    transform: scale(1.05);
+}
+
+.remove-item i {
+    font-size: 1.2rem;
+}
+.contact-form {
+    background-color: #f8f9fa;
+    padding: 2rem;
+    border-radius: 8px;
+    margin-bottom: 2rem;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+
+.form-group {
+    margin-bottom: 1.5rem;
+}
+
+.form-input {
+    width: 100%;
+    padding: 0.75rem;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 1rem;
+    transition: border-color 0.3s ease;
+}
+
+.form-input:focus {
+    border-color: var(--primary-color);
+    outline: none;
+}
+
+.char-count {
+    text-align: right;
+    font-size: 0.8rem;
+    color: #666;
+    margin-top: 0.25rem;
+}
+
+/* Estilos para los botones */
+.cart-summary {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;  /* Centra los botones */
+    margin-top: 2rem;
+    flex-wrap: wrap;  /* Asegura que los botones se ajusten si es necesario */
+}
+
+.email-order-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 1rem 1.5rem;
+    background-color: #4a5568;
+    color: white;
+    border: none;
+    border-radius: 999px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-weight: 600;
+    font-size: 1rem;
+}
+
+.email-order-btn:hover {
+    background-color: #2d3748;
+    transform: translateY(-1px);
+}
+
+</style>
+
+<script>
+function loadCart() {
+    const cartItems = document.getElementById('cart-items');
+    const cart = JSON.parse(getCookie('cart') || '[]');
+    
+    if (cart.length === 0) {
+        cartItems.innerHTML = '<p>No hay productos en el carrito</p>';
+        return;
+    }
+    
+    cartItems.innerHTML = cart.map(item => `
+        <div class="cart-item">
+            <img src="${item.imagen}" alt="${item.nombre}" class="cart-item-image" onerror="this.src='/static/img/placeholder.png'">
+            <div class="cart-item-details">
+                <a href="/producto/${item.id}/" class="cart-item-name">${item.nombre}</a>
+                <span class="cart-item-category">${item.categoria}</span>
+            </div>
+            <div class="cart-item-price">${item.precio}</div>
+            <div class="remove-item" onclick="removeFromCart('${item.id}')">
+                <i class="fas fa-trash"></i>
+            </div>
+        </div>
+    `).join('');
+}
+
+function removeFromCart(id) {
+    let cart = JSON.parse(getCookie('cart') || '[]');
+    cart = cart.filter(item => item.id !== id);
+    setCookie('cart', JSON.stringify(cart), 7);
+    loadCart();
+    updateCartCount();
+}
+
+function enviarPedidoWhatsApp() {
+    const cart = JSON.parse(getCookie('cart') || '[]');
+    if (cart.length === 0) {
+        alert('El carrito está vacío');
+        return;
+    }
+    
+    let mensaje = 'Hola, me gustaría consultar por los siguientes productos:\n\n';
+    cart.forEach(item => {
+        mensaje += `- ${item.nombre} (${item.categoria})`;
+        if (item.precio !== 'Consultar') {
+            mensaje += ` - $${item.precio}`;
+        }
+        mensaje += '\n';
+    });
+    
+    const url = `https://wa.me/56968446574?text=${encodeURIComponent(mensaje)}`;
+    window.open(url, '_blank');
+    
+    // Opcional: limpiar el carrito después de enviar
+    setCookie('cart', '[]', 7);
+    loadCart();
+    updateCartCount();
+}
+
+document.addEventListener('DOMContentLoaded', loadCart);
+
+document.getElementById('mensaje').addEventListener('input', function() {
+    const maxLength = 200;
+    const currentLength = this.value.length;
+    this.nextElementSibling.textContent = `${currentLength}/${maxLength}`;
+});
+
+// Validar el formulario
+function validarFormulario() {
+    const nombre = document.getElementById('nombre').value.trim();
+    const telefono = document.getElementById('telefono').value.trim();
+    
+    if (!nombre) {
+        alert('Por favor, ingresa tu nombre');
+        return false;
+    }
+    
+    if (!telefono) {
+        alert('Por favor, ingresa tu número de teléfono');
+        return false;
+    }
+    
+    if (!/^[0-9]+$/.test(telefono)) {
+        alert('El número de teléfono solo debe contener números');
+        return false;
+    }
+    
+    return true;
+}
+
+function enviarPorWhatsApp() {
+    if (!validarFormulario()) return;
+    
+    const cart = JSON.parse(getCookie('cart') || '[]');
+    if (cart.length === 0) {
+        alert('El carrito está vacío');
+        return;
+    }
+    
+    const nombre = document.getElementById('nombre').value.trim();
+    const telefono = document.getElementById('telefono').value.trim();
+    const mensaje = document.getElementById('mensaje').value.trim();
+    
+    let mensajeCompleto = `*Nuevo pedido*\n\n`;
+    mensajeCompleto += `*Datos de contacto:*\n`;
+    mensajeCompleto += `Nombre: ${nombre}\n`;
+    mensajeCompleto += `Teléfono: ${telefono}\n`;
+    if (mensaje) {
+        mensajeCompleto += `Mensaje: ${mensaje}\n`;
+    }
+    
+    mensajeCompleto += `\n*Productos solicitados:*\n`;
+    cart.forEach(item => {
+        mensajeCompleto += `- ${item.nombre} (${item.categoria})`;
+        if (item.precio !== 'Consultar') {
+            mensajeCompleto += ` - $${item.precio}`;
+        }
+        mensajeCompleto += '\n';
+    });
+    
+    const url = `https://wa.me/56968446574?text=${encodeURIComponent(mensajeCompleto)}`;
+    window.open(url, '_blank');
+    
+    // Limpiar carrito después de enviar
+    setCookie('cart', '[]', 7);
+    loadCart();
+    updateCartCount();
+    document.getElementById('cartForm').reset();
+}
+
+function enviarPorEmail() {
+    if (!validarFormulario()) return;
+    
+    const cart = JSON.parse(getCookie('cart') || '[]');
+    if (cart.length === 0) {
+        alert('El carrito está vacío');
+        return;
+    }
+    
+    const nombre = document.getElementById('nombre').value.trim();
+    const telefono = document.getElementById('telefono').value.trim();
+    const mensaje = document.getElementById('mensaje').value.trim();
+    
+    // Construir el cuerpo del correo
+    let mailtoBody = `Nuevo pedido:\n\n`;
+    mailtoBody += `Datos de contacto:\n`;
+    mailtoBody += `Nombre: ${nombre}\n`;
+    mailtoBody += `Teléfono: ${telefono}\n`;
+    if (mensaje) {
+        mailtoBody += `Mensaje: ${mensaje}\n`;
+    }
+    
+    mailtoBody += `\nProductos solicitados:\n`;
+    cart.forEach(item => {
+        mailtoBody += `- ${item.nombre} (${item.categoria})`;
+        if (item.precio !== 'Consultar') {
+            mailtoBody += ` - $${item.precio}`;
+        }
+        mailtoBody += '\n';
+    });
+    
+    const mailtoLink = `mailto:contacto@ecogab.cl?subject=${encodeURIComponent('Nuevo Pedido - Ecogab')}&body=${encodeURIComponent(mailtoBody)}`;
+    window.location.href = mailtoLink;
+    
+    // Limpiar carrito después de enviar
+    setCookie('cart', '[]', 7);
+    loadCart();
+    updateCartCount();
+    document.getElementById('cartForm').reset();
+}
+</script>
+{% endblock %}

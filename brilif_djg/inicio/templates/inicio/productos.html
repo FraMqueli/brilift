@@ -1,0 +1,539 @@
+{% extends 'inicio/base.html' %}
+{% load static %}
+{% block title %}Productos - Ecogab SPA{% endblock %}
+
+{% block content %}
+<!-- Imagen dinámica del proceso -->
+{% if request.GET.procesos %}
+<div class="full-width-image-container">
+    <div class="text-overlay">{{ request.GET.procesos }}</div>
+    <img src="{% static 'img/foto_'|add:request.GET.procesos|add:'.jpeg' %}" alt="Foto de {{ request.GET.procesos }}">
+</div>
+{% else %}
+<div class="process-gallery">
+    {% for key, value in procesos.items %}
+    <a href="?procesos={{ key }}" class="process-link">
+        <img src="{% static 'img/proceso_'|add:key|add:'.jpeg' %}" alt="Imagen de {{ value }}" class="process-image">
+        <div class="process-name">{{ value }}</div>
+    </a>
+    {% endfor %}
+    <a href="https://www.ecogab.cl" target="_blank" class="process-link">
+        <img src="{% static 'img/proceso_otros.avif' %}" alt="Imagen de Otros" class="process-image">
+        <div class="process-name">Otros Equipos</div>
+    </a>
+</div>
+{% endif %}
+
+<section class="productos">
+    <!-- Filtros -->
+    <form method="get" class="filter-form" id="filterForm">
+        <input type="hidden" name="search" value="{{ request.GET.search }}">
+        <div class="filters-container">
+            <!-- Filtros básicos -->
+            <div class="filters-row">
+                <div class="filter-group">
+                    <label for="estado">Estado:</label>
+                    <select name="estado" id="estado">
+                        <option value="">Todos</option>
+                        {% for estado in estados %}
+                        <option value="{{ estado.0 }}" {% if request.GET.estado == estado.0 %}selected{% endif %}>
+                            {{ estado.1 }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                
+                <div class="filter-group">
+                    <label for="categoria">Categoría:</label>
+                    <select name="categoria" id="categoria">
+                        <option value="">Todas</option>
+                        {% for categoria in categorias %}
+                        <option value="{{ categoria.0 }}" {% if request.GET.categoria == categoria.0 %}selected{% endif %}>
+                            {{ categoria.1 }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                
+                <div class="filter-group">
+                    <label for="procesos">Procesos:</label>
+                    <select name="procesos" id="procesos">
+                        <option value="">Todos</option>
+                        {% for key, value in procesos.items %}
+                        <option value="{{ key }}" {% if request.GET.procesos == key %}selected{% endif %}>
+                            {{ value }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                
+                <div class="filter-group">
+                    <label for="combustible">Combustible:</label>
+                    <select name="combustible" id="combustible">
+                        <option value="">Todos</option>
+                        {% for combustible in combustibles %}
+                        <option value="{{ combustible.0 }}" {% if combustible.0 == request.GET.combustible %}selected{% endif %}>
+                            {{ combustible.1 }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+            
+            <!-- Contenedor para filtros dinámicos -->
+            <div id="filtrosDinamicos" class="filters-row">
+                <!-- Los filtros dinámicos se insertan aquí vía JavaScript -->
+            </div>
+        </div>
+        
+        <div class="button-container">
+            <button type="submit" class="filter-btn">Filtrar</button>
+        </div>
+    </form>
+    <div class="search-container">
+        <form method="get" class="search-form">
+            <input type="text" 
+                name="search" 
+                placeholder="Buscar productos..." 
+                value="{{ request.GET.search }}"
+                class="search-input">
+            <button type="submit" class="search-button">
+                Buscar
+            </button>
+        </form>
+    </div>
+    
+        <!-- Grid de productos -->
+        <h1>Productos</h1>
+        <div class="products-grid">
+            {% for producto in productos %}
+            <div class="product-card">
+                <div class="product-carousel">
+                    <div class="carousel-items">
+                        {% if producto.imagen_1 %}
+                            <img src="{{ producto.imagen_1.url }}" alt="{{ producto.nombre }}">
+                        {% endif %}
+                        {% if producto.imagen_2 %}
+                            <img src="{{ producto.imagen_2.url }}" alt="{{ producto.nombre }}">
+                        {% endif %}
+                        {% if producto.imagen_3 %}
+                            <img src="{{ producto.imagen_3.url }}" alt="{{ producto.nombre }}">
+                        {% endif %}
+                        {% if producto.imagen_4 %}
+                            <img src="{{ producto.imagen_4.url }}" alt="{{ producto.nombre }}">
+                        {% endif %}
+                        {% if producto.imagen_5 %}
+                            <img src="{{ producto.imagen_5.url }}" alt="{{ producto.nombre }}">
+                        {% endif %}
+                    </div>
+                    <button class="carousel-prev">←</button>
+                    <button class="carousel-next">→</button>
+                </div>
+                {% if producto.combustible %}
+                    <span 
+                        {% if producto.combustible == 'Eléctrico' %}
+                            style="background-color: #4e81f0; color: white; padding: 0.157rem 1rem; border-radius: 0px; font-weight: bold; text-align: right; margin-top: 2px;"
+                        {% elif producto.combustible == 'Bencina' %}
+                            style="background-color: #f39c12; color: white; padding: 0.157rem 1rem; border-radius: 0px; font-weight: bold; text-align: right; margin-top: 2px;"
+                        {% elif producto.combustible == 'Diesel' %}
+                            style="background-color: #423c3c; color: white; padding: 0.157rem 1rem; border-radius: 0px; font-weight: bold; text-align: right; margin-top: 2px;"
+                        {% else %}
+                            style="background-color: grey; color: white; padding: 0.157rem 1rem; border-radius: 0px; font-weight: bold; text-align: right; margin-top: 2px;"
+                        {% endif %}
+                    >
+                        {{ producto.combustible }}
+                    </span>
+                {% endif %}
+                <div class="product-info">
+                    <h3>{{ producto.nombre }}</h3>
+                    <p class="product-description">{{ producto.descripcion|truncatechars:100 }}</p>
+                    <div class="product-meta">
+                        {% if producto.categoria == 'Venta' %}
+                            <span class="price">${{ producto.precio }}</span>
+                        {% endif %}
+                        <span class="likes">❤️ {{ producto.cantidad_me_gusta }}</span>
+                        <span class="status {% if producto.estado == 'Disponible' %}disponible{% else %}no-disponible{% endif %}">{{ producto.estado }}</span>
+                    </div>
+                </div>
+                <a href="{% url 'producto_detail' producto.id %}" class="product-btn">Ver Detalles</a>
+            </div>
+            {% endfor %}
+        </div>
+    </section>
+
+    <!-- Estilos -->
+    <style>
+        .full-width-image-container {
+            position: relative;
+            width: 100%;
+            aspect-ratio: 16 / 5;
+            overflow: hidden;
+        }
+
+        .full-width-image-container img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        /* Estilo para la superposición de texto */
+        .text-overlay {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: white;
+            font-weight: bold;
+            text-align: center;
+            text-shadow: 2px 2px 10px rgba(0, 0, 0, 0.7);
+            width: 90%; /* Ajusta el ancho al 90% del contenedor */
+            max-width: 100%; /* Evita que el texto se salga del contenedor */
+            white-space: normal; /* Permite que el texto se divida en varias líneas si es necesario */
+            word-wrap: break-word; /* Asegura que el texto se ajuste a la línea */
+            padding: 10px;
+            box-sizing: border-box;
+            font-size: calc(2rem + 5vw); /* Ajusta el tamaño de la fuente según el ancho de la ventana */
+        }
+
+        /* Estilo para el formulario de filtros */
+        .filter-form {
+            background-color: #f8f9fa;
+            padding: 2rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            margin-bottom: 2rem;
+        }
+
+        .filters-container {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .filters-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 1.5rem;
+            align-items: start;
+        }
+
+        .filter-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            min-width: 0; /* Permite que el contenido se ajuste dentro del grid */
+        }
+
+        .filter-group label {
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: #333;
+            margin: 0;
+        }
+
+        .filter-group select {
+            width: 100%;
+            padding: 0.75rem;
+            font-size: 0.875rem;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            background-color: white;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+
+        .filter-group select:focus {
+            border-color: #4e81f0;
+            box-shadow: 0 0 0 2px rgba(78, 129, 240, 0.1);
+            outline: none;
+        }
+
+        .button-container {
+            display: flex;
+            justify-content: flex-end;
+        }
+
+        .filter-btn {
+            padding: 0.75rem 2rem;
+            font-size: 0.875rem;
+            font-weight: 600;
+            background-color: #e73c6d;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .filter-btn:hover {
+            background-color: #111213;
+        }
+
+        @media (max-width: 768px) {
+            .filters-row {
+                grid-template-columns: 1fr;
+            }
+
+            .button-container {
+                justify-content: stretch;
+            }
+
+            .filter-btn {
+                width: 100%;
+            }
+        }
+        .process-gallery {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);  /* Máximo 5 columnas por fila */
+            gap: 15px;
+            padding: 20px;
+        }
+
+        .process-link {
+            text-align: center;
+            text-decoration: none;
+            color: inherit;
+            position: relative;  /* Asegura que el texto se posicione dentro de la imagen */
+        }
+
+        .process-image {
+            width: 100%;  /* Asegura que las imágenes ocupen el 100% del ancho de su contenedor */
+            height: 200px;  /* Fija una altura constante para todas las imágenes */
+            object-fit: cover;  /* Mantiene la relación de aspecto de las imágenes y cubre el contenedor */
+            border-radius: 8px;
+            transition: transform 0.3s ease;
+        }
+
+        .process-image:hover {
+            transform: scale(1.05);
+        }
+
+        .process-name {
+            position: absolute;  /* Posiciona el texto encima de la imagen */
+            bottom: 25%;  /* Ajusta la distancia desde la parte inferior de la imagen */
+            left: 50%;  /* Centra el texto horizontalmente */
+            transform: translateX(-50%);  /* Ajusta el centrado horizontal */
+            color: white;  /* Cambia el color del texto para que sea visible sobre la imagen */
+            font-weight: bold;
+            padding: 5px;
+            border-radius: 5px;
+            font-weight: bold;
+            font-size: 2em;  /* Aumenta el tamaño de la fuente */
+            text-shadow: 2px 2px 0px rgb(255, 0, 0);  /* Contorno amarillo para las letras */
+        }
+
+        /* Media Queries para pantallas pequeñas */
+        @media (max-width: 1200px) {
+            .process-gallery {
+                grid-template-columns: repeat(4, 1fr);  /* 4 columnas en pantallas medianas */
+            }
+        }
+
+        @media (max-width: 992px) {
+            .process-gallery {
+                grid-template-columns: repeat(3, 1fr);  /* 3 columnas en pantallas pequeñas */
+            }
+        }
+
+        @media (max-width: 768px) {
+            .process-gallery {
+                grid-template-columns: repeat(2, 1fr);  /* 2 columnas en dispositivos más pequeños */
+            }
+        }
+
+        @media (max-width: 480px) {
+            .process-gallery {
+                grid-template-columns: 1fr;  /* 1 columna en dispositivos móviles muy pequeños */
+            }
+        }
+        
+        .search-container {
+            width: 100%;
+            max-width: 800px;
+            margin: 20px auto;
+            padding: 0 15px;
+            box-sizing: border-box;
+        }
+
+        .search-form {
+            display: flex;
+            gap: 10px;
+            width: 100%;
+        }
+
+        .search-input {
+            flex: 1;
+            min-width: 0; /* Esto es importante para evitar que el input se desborde */
+            padding: 10px 15px;
+            border: 2px solid #ddd;
+            border-radius: 4px;
+            font-size: 16px;
+        }
+
+        .search-button {
+            padding: 10px 20px;
+            background-color: #e73c6d;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+            white-space: nowrap; /* Evita que el texto del botón se divida en múltiples líneas */
+        }
+
+        .search-button:hover {
+            background-color: #111213;
+        }
+
+        /* Media queries para dispositivos móviles */
+        @media (max-width: 480px) {
+            .search-container {
+                padding: 0 10px;
+                margin: 10px auto;
+            }
+
+            .search-form {
+                gap: 5px;
+            }
+
+            .search-input {
+                padding: 8px 10px;
+                font-size: 14px;
+            }
+
+            .search-button {
+                padding: 8px 15px;
+                font-size: 14px;
+            }
+        }
+
+    </style>
+
+    <!-- JavaScript para manejar filtros dinámicos -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const procesosSelect = document.getElementById('procesos');
+            const filtrosDinamicos = document.getElementById('filtrosDinamicos');
+
+            async function cargarFiltrosDinamicos(proceso) {
+                if (!proceso) {
+                    filtrosDinamicos.innerHTML = '';
+                    return;
+                }
+
+                try {
+                    const response = await fetch(`/api/obtener_tipos/?proceso=${proceso}`);
+                    const data = await response.json();
+
+                    if (!response.ok) throw new Error('Error al cargar los datos.');
+
+                    let html = '';
+
+                    if (data.tipos && data.tipos.length > 0) {
+                        html += `
+                            <div class="filter-group">
+                                <label for="tipo">Tipo de ${proceso}:</label>
+                                <select name="tipo" id="tipo">
+                                    <option value="">Todos</option>
+                                    ${data.tipos.map(tipo => 
+                                        `<option value="${tipo.id}" ${tipo.id == '{{ request.GET.tipo|default_if_none:"" }}' ? 'selected' : ''}>
+                                            ${tipo.nombre}
+                                        </option>`
+                                    ).join('')}
+                                </select>
+                            </div>
+                        `;
+                    }
+
+                    if (data.campos_adicionales) {
+                        for (const [campo, valores] of Object.entries(data.campos_adicionales)) {
+                            if (valores && valores.length > 0) {
+                                html += `
+                                    <div class="filter-group">
+                                        <label for="${campo}">${campo.charAt(0).toUpperCase() + campo.slice(1)}:</label>
+                                        <select name="${campo}" id="${campo}">
+                                            <option value="">Todos</option>
+                                            ${valores.map(valor => 
+                                                `<option value="{{ valor }}" {% if valor == request.GET.procesos|default_if_none:"" %}selected{% endif %}>
+
+                                                    ${valor}
+                                                </option>`
+                                            ).join('')}
+                                        </select>
+                                    </div>
+                                `;
+                            }
+                        }
+                    }
+
+                    filtrosDinamicos.innerHTML = html;
+                } catch (error) {
+                    console.error('Error al cargar los filtros:', error);
+                    filtrosDinamicos.innerHTML = '<p style="color: red;">Error al cargar los filtros dinámicos.</p>';
+                }
+            }
+
+            procesosSelect.addEventListener('change', function() {
+                cargarFiltrosDinamicos(this.value);
+            });
+
+            if (procesosSelect.value) {
+                cargarFiltrosDinamicos(procesosSelect.value);
+            }
+
+            document.querySelectorAll('.product-carousel').forEach(carousel => {
+                const items = carousel.querySelector('.carousel-items');
+                const prevBtn = carousel.querySelector('.carousel-prev');
+                const nextBtn = carousel.querySelector('.carousel-next');
+                let currentIndex = 0;
+
+                nextBtn.addEventListener('click', () => {
+                    currentIndex = (currentIndex + 1) % items.children.length;
+                    updateCarousel();
+                });
+
+                prevBtn.addEventListener('click', () => {
+                    currentIndex = (currentIndex - 1 + items.children.length) % items.children.length;
+                    updateCarousel();
+                });
+
+                function updateCarousel() {
+                    items.style.transform = `translateX(-${currentIndex * 100}%)`;
+                }
+            });
+        });
+        document.addEventListener('DOMContentLoaded', function() {
+            const searchForm = document.querySelector('.search-form');
+            const filterForm = document.getElementById('filterForm');
+            const searchInput = document.querySelector('input[name="search"]');
+            
+            // Función para combinar los parámetros de búsqueda y filtros
+            function combineParams(searchParams, filterParams) {
+                const combinedParams = new URLSearchParams(filterParams);
+                if (searchParams.get('search')) {
+                    combinedParams.set('search', searchParams.get('search'));
+                }
+                return combinedParams.toString();
+            }
+
+            // Manejar el envío del formulario de búsqueda
+            searchForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                const searchParams = new URLSearchParams(new FormData(searchForm));
+                const filterParams = new URLSearchParams(new FormData(filterForm));
+                const combinedParams = combineParams(searchParams, filterParams);
+                window.location.href = `${window.location.pathname}?${combinedParams}`;
+            });
+
+            // Actualizar el campo oculto de búsqueda en el formulario de filtros
+            filterForm.addEventListener('submit', function(e) {
+                if (searchInput.value) {
+                    const hiddenSearch = filterForm.querySelector('input[name="search"]');
+                    if (hiddenSearch) {
+                        hiddenSearch.value = searchInput.value;
+                    }
+                }
+            });
+        });
+    </script>
+{% endblock %}
