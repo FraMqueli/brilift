@@ -113,10 +113,10 @@ def producto_detail(request, producto_id):
 
 # Mapeo de procesos a modelos y campos
 PROCESO_MAPPING = {
-    'ALZA HOMBRE': {'modelo': 'alza_hombre', 'tipo_modelo': TipoAlzaHombre},
-    'BRAZO ARTICULADO': {'modelo': 'brazo_articulado', 'tipo_modelo': TipoBrazoArticulado},
-    'GRUA HORQUILLA': {'modelo': 'grua_horquilla', 'tipo_modelo': TipoGruaHorquilla},
-    'PLATAFORMA DE ELEVACION': {'modelo': 'plataforma_elevacion', 'tipo_modelo': TipoPlataformaDeElevacion},
+    'ALZA_HOMBRE': {'modelo': 'alza_hombre', 'tipo_modelo': TipoAlzaHombre},
+    'BRAZO_ARTICULADO': {'modelo': 'brazo_articulado', 'tipo_modelo': TipoBrazoArticulado},
+    'GRUA_HORQUILLA': {'modelo': 'grua_horquilla', 'tipo_modelo': TipoGruaHorquilla},
+    'PLATAFORMA_DE_ELEVACION': {'modelo': 'plataforma_elevacion', 'tipo_modelo': TipoPlataformaDeElevacion},
 }
 
 
@@ -126,9 +126,11 @@ def get_proceso_info(proceso):
 
 def obtener_tipos(request):
     """Vista para obtener tipos de proceso vía AJAX"""
-    proceso = request.GET.get('proceso')
+    proceso = request.GET.get('procesos')
+    if proceso:
+        proceso = proceso.replace(' ', '_')    
     proceso_info = get_proceso_info(proceso)
-    
+
     if not proceso_info:
         return JsonResponse({'tipos': []})
     
@@ -167,6 +169,8 @@ def productos(request):
     
     # Obtener filtros básicos
     proceso = request.GET.get('procesos')
+    if proceso:
+        proceso = proceso.replace(' ', '_')
     tipo_id = request.GET.get('tipo')
     categoria = request.GET.get('categoria')
     estado = request.GET.get('estado')

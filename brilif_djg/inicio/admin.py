@@ -128,10 +128,10 @@ class ProductoAdmin(admin.ModelAdmin):
             return []
 
         inlines_map = {
-            'ALZA HOMBRE': AlzaHombreInline,
-            'BRAZO ARTICULADO': BrazoArticuladoInline,
-            'GRUA HORQUILLA': GruaHorquillaInline,
-            'PLATAFORMA DE ELEVACION': PlataformaDeElevacionInline,
+            'ALZA_HOMBRE': AlzaHombreInline,
+            'BRAZO_ARTICULADO': BrazoArticuladoInline,
+            'GRUA_HORQUILLA': GruaHorquillaInline,
+            'PLATAFORMA_DE_ELEVACION': PlataformaDeElevacionInline,
         }
 
         inline_class = inlines_map.get(obj.procesos)
