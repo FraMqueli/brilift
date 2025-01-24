@@ -5,24 +5,25 @@
 {% block content %}
 <!-- Imagen dinámica del proceso -->
 {% if request.GET.procesos %}
-<div class="full-width-image-container">
-    <div class="text-overlay">{{ request.GET.procesos }}</div>
-    <img src="{% static 'img/foto_'|add:request.GET.procesos|add:'.jpeg' %}" alt="Foto de {{ request.GET.procesos.replace(' ', '_') }}">
-</div>
+    <div class="full-width-image-container">
+        <div class="text-overlay">{{ request.GET.procesos }}</div>
+        <img src="{% static 'img/foto_'|add:request.GET.procesos|add:'.jpeg' %}" alt="Foto de {{ request.GET.procesos }}">
+    </div>
 {% else %}
-<div class="process-gallery">
-    {% for key, value in procesos.items %}
-    <a href="?procesos={{ key.replace(' ', '_') }}" class="process-link">
-        <img src="{% static 'img/proceso_'|add:key|add:'.jpeg' %}" alt="Imagen de {{ value }}" class="process-image">
-        <div class="process-name">{{ value }}</div>
-    </a>
-    {% endfor %}
-    <a href="https://www.ecogab.cl" target="_blank" class="process-link">
-        <img src="{% static 'img/proceso_otros.avif' %}" alt="Imagen de Otros" class="process-image">
-        <div class="process-name">Otros Equipos</div>
-    </a>
-</div>
+    <div class="process-gallery">
+        {% for key, value in procesos.items %}
+            <a href="?procesos={{ key }}" class="process-link">
+                <img src="{% static 'img/proceso_'|add:key|add:'.jpeg' %}" alt="Imagen de {{ value }}" class="process-image">
+                <div class="process-name">{{ value }}</div>
+            </a>
+        {% endfor %}
+        <a href="https://www.ecogab.cl" target="_blank" class="process-link">
+            <img src="{% static 'img/proceso_otros.avif' %}" alt="Imagen de Otros" class="process-image">
+            <div class="process-name">Otros Equipos</div>
+        </a>
+    </div>
 {% endif %}
+
 
 <section class="productos">
     <!-- Filtros -->
