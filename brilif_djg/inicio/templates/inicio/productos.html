@@ -6,9 +6,15 @@
 <!-- Imagen dinámica del proceso -->
 {% if request.GET.procesos %}
     <div class="full-width-image-container">
-        <!-- Reemplaza guiones bajos con espacios -->
         <div class="text-overlay">
-            {{ request.GET.procesos|default:''|yesno:" " }}
+            {% for letter in request.GET.procesos %}
+                {% if letter == '_' %}
+                    <!-- Imprime un espacio en lugar de "_" -->
+                    &nbsp;
+                {% else %}
+                    {{ letter }}
+                {% endif %}
+            {% endfor %}
         </div>
         <img src="{% static 'img/foto_'|add:request.GET.procesos|add:'.jpeg' %}" alt="Foto de {{ request.GET.procesos }}">
     </div>
@@ -17,12 +23,22 @@
         {% for key, value in procesos.items %}
             <a href="?procesos={{ key }}" class="process-link">
                 <img src="{% static 'img/proceso_'|add:key|add:'.jpeg' %}" alt="Imagen de {{ value }}" class="process-image">
-                <!-- Reemplaza guiones bajos por espacios -->
                 <div class="process-name">
-                    {{ key|default:''|yesno:" " }}
+                    <!-- Lo mismo para "key" si quieres reemplazar "_" por espacios -->
+                    {% for letter in key %}
+                        {% if letter == '_' %}
+                            &nbsp;
+                        {% else %}
+                            {{ letter }}
+                        {% endif %}
+                    {% endfor %}
                 </div>
             </a>
         {% endfor %}
+        <a href="https://www.ecogab.cl" target="_blank" class="process-link">
+            <img src="{% static 'img/proceso_otros.avif' %}" alt="Imagen de Otros" class="process-image">
+            <div class="process-name">Otros Equipos</div>
+        </a>
     </div>
 {% endif %}
 
