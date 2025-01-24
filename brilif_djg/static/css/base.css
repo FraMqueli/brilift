@@ -170,9 +170,11 @@ main {
 
     .nav-menu {
         display: none; /* O tu lógica actual para el menú móvil */
+        background-color: #2F4F4F;
     }
 
     .nav-menu.active {
+        background-color: #2F4F4F; /* Verde marino */
         display: flex;
     }
 
