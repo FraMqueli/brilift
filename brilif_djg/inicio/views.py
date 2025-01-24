@@ -169,8 +169,7 @@ def productos(request):
     
     # Obtener filtros básicos
     proceso = request.GET.get('procesos')
-    if proceso:
-        proceso = proceso.replace(' ', '_')
+    proceso_limpio = proceso.replace('_', ' ') if proceso else None  # Reemplazar guiones bajos por espacios
     tipo_id = request.GET.get('tipo')
     categoria = request.GET.get('categoria')
     estado = request.GET.get('estado')
@@ -230,7 +229,8 @@ def productos(request):
         'categorias': Producto.CATEGORIA_CHOICES,
         'estados': Producto.ESTADO_CHOICES,
         'procesos': dict(Producto.PROCESOS_CHOICES),
-        'proceso_actual': proceso,
+        'proceso_actual': proceso,  # Proceso original
+        'proceso_limpio': proceso_limpio,  # Proceso con guiones bajos reemplazados
         'tipo_actual': tipo_id,
         'categoria_actual': categoria,
         'estado_actual': estado,
@@ -239,6 +239,7 @@ def productos(request):
     })
     
     return render(request, 'inicio/productos.html', context)
+
 
 def ver_carrito(request):
     return render(request, 'carrito/ver_carrito.html')
