@@ -6,9 +6,9 @@
 <!-- Imagen dinámica del proceso -->
 {% if request.GET.procesos %}
     <div class="full-width-image-container">
-        <!-- Reemplaza los guiones bajos con espacios -->
+        <!-- Reemplaza guiones bajos con espacios -->
         <div class="text-overlay">
-            {{ request.GET.procesos|cut:"_"|default_if_none:"" }}
+            {{ request.GET.procesos|default:''|yesno:" " }}
         </div>
         <img src="{% static 'img/foto_'|add:request.GET.procesos|add:'.jpeg' %}" alt="Foto de {{ request.GET.procesos }}">
     </div>
@@ -17,18 +17,15 @@
         {% for key, value in procesos.items %}
             <a href="?procesos={{ key }}" class="process-link">
                 <img src="{% static 'img/proceso_'|add:key|add:'.jpeg' %}" alt="Imagen de {{ value }}" class="process-image">
-                <!-- Reemplaza los guiones bajos con espacios solo en el texto -->
+                <!-- Reemplaza guiones bajos por espacios -->
                 <div class="process-name">
-                    {{ key|cut:"_" }}
+                    {{ key|default:''|yesno:" " }}
                 </div>
             </a>
         {% endfor %}
-        <a href="https://www.ecogab.cl" target="_blank" class="process-link">
-            <img src="{% static 'img/proceso_otros.avif' %}" alt="Imagen de Otros" class="process-image">
-            <div class="process-name">Otros Equipos</div>
-        </a>
     </div>
 {% endif %}
+
 
 
 <section class="productos">
