@@ -105,10 +105,10 @@ class Producto(models.Model):
         default='Gasolina'
     )
     PROCESOS_CHOICES = [
-        ('GRUA_HORQUILLA', 'Grua_Horquilla'),
-        ('ALZA_HOMBRE', 'Alza_Hombre'),
-        ('BRAZO_ARTICULADO', 'Brazo_Articulado'),
-        ('PLATAFORMA_DE_ELEVACION', 'Plataforma_de_Elevación'),
+        ('GRUA_HORQUILLA', 'Grua Horquilla'),
+        ('ALZA_HOMBRE', 'Alza Hombre'),
+        ('BRAZO_ARTICULADO', 'Brazo Articulado'),
+        ('PLATAFORMA_DE_ELEVACION', 'Plataforma de Elevación'),
     ]
 
     nombre = models.CharField(max_length=100)

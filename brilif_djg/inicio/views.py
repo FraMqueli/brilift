@@ -14,6 +14,7 @@ PROCESO_MAPPING = {
     'DEMOLEDORA': {'modelo': 'demoledor', 'plataforma de elevación': TipoPlataformaDeElevacion},
     }
 
+
 def inicio(request):
     """
     Vista principal para mostrar los productos destacados en la página de inicio.
@@ -111,13 +112,7 @@ def producto_detail(request, producto_id):
     return render(request, 'inicio/producto_detail.html', context)
 
 
-# Mapeo de procesos a modelos y campos
-PROCESO_MAPPING = {
-    'ALZA_HOMBRE': {'modelo': 'alza_hombre', 'tipo_modelo': TipoAlzaHombre},
-    'BRAZO_ARTICULADO': {'modelo': 'brazo_articulado', 'tipo_modelo': TipoBrazoArticulado},
-    'GRUA_HORQUILLA': {'modelo': 'grua_horquilla', 'tipo_modelo': TipoGruaHorquilla},
-    'PLATAFORMA_DE_ELEVACION': {'modelo': 'plataforma_elevacion', 'tipo_modelo': TipoPlataformaDeElevacion},
-}
+
 
 
 def get_proceso_info(proceso):
@@ -169,7 +164,7 @@ def productos(request):
     
     # Obtener filtros básicos
     proceso = request.GET.get('procesos')
-    proceso_limpio = proceso.replace('_', ' ') if proceso else None  # Reemplazar guiones bajos por espacios
+    proceso_limpio = proceso.replace('_', ' ') if proceso else None  # Procesar para texto visible
     tipo_id = request.GET.get('tipo')
     categoria = request.GET.get('categoria')
     estado = request.GET.get('estado')
@@ -229,8 +224,8 @@ def productos(request):
         'categorias': Producto.CATEGORIA_CHOICES,
         'estados': Producto.ESTADO_CHOICES,
         'procesos': dict(Producto.PROCESOS_CHOICES),
-        'proceso_actual': proceso,  # Proceso original
-        'proceso_limpio': proceso_limpio,  # Proceso con guiones bajos reemplazados
+        'proceso_actual': proceso,  # Original para las rutas
+        'proceso_limpio': proceso_limpio,  # Texto visible con espacios
         'tipo_actual': tipo_id,
         'categoria_actual': categoria,
         'estado_actual': estado,
