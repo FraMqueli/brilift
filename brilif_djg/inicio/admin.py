@@ -49,7 +49,7 @@ class GruaHorquillaInline(EquipoBaseInline):
             'fields': ('tipo', 'combustible', 'modelo')
         }),
         ('Especificaciones', {
-            'fields': ('capacidad', 'tamaño')
+            'fields': ('capacidad', 'tamaño', 'profundidad')
         }),
         ('Notas y Fechas', {
             'fields': ('notas', 'fecha_creacion', 'fecha_actualizacion'),
@@ -64,7 +64,7 @@ class BrazoArticuladoInline(EquipoBaseInline):
             'fields': ('tipo', 'combustible', 'modelo')
         }),
         ('Especificaciones', {
-            'fields': ('capacidad',)
+            'fields': ('capacidad', 'tamaño')
         }),
         ('Notas y Fechas', {
             'fields': ('notas', 'fecha_creacion', 'fecha_actualizacion'),
@@ -79,7 +79,7 @@ class PlataformaDeElevacionInline(EquipoBaseInline):
             'fields': ('tipo', 'combustible', 'modelo')
         }),
         ('Especificaciones', {
-            'fields': ('capacidad',)
+            'fields': ('capacidad', 'tamaño')
         }),
         ('Notas y Fechas', {
             'fields': ('notas', 'fecha_creacion', 'fecha_actualizacion'),
@@ -94,13 +94,14 @@ class AlzaHombreInline(EquipoBaseInline):
             'fields': ('tipo', 'combustible', 'modelo')
         }),
         ('Especificaciones', {
-            'fields': ('altura', 'uso')
+            'fields': ('altura', 'uso', 'tamaño', 'potencia_compactacion', 'kilowatts')
         }),
         ('Notas y Fechas', {
             'fields': ('notas', 'fecha_creacion', 'fecha_actualizacion'),
             'classes': ('collapse',)
         }),
     )
+
 
 @admin.register(Producto)
 class ProductoAdmin(admin.ModelAdmin):

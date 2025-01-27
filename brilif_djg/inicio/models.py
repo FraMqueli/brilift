@@ -59,25 +59,27 @@ class EquipoBase(models.Model):
 class AlzaHombre(EquipoBase):
     tipo = models.ForeignKey(TipoAlzaHombre, on_delete=models.PROTECT)
     altura = models.DecimalField(max_digits=5, decimal_places=2, help_text="Altura en metros")
-    uso = models.CharField(max_length=100, help_text="Tipo de uso del equipo")
-    tamaño = models.CharField(max_length=50)
-    potencia_compactacion = models.CharField(max_length=50)
-    kilowatts = models.DecimalField(max_digits=5, decimal_places=2, null=True, blank=True)
+    uso = models.CharField(max_length=100, help_text="Uso del equipo (por ejemplo: construcción, transporte, etc.)")
+    tamaño = models.CharField(max_length=50, help_text="Dimensiones del equipo")
+    potencia_compactacion = models.CharField(max_length=50, help_text="Potencia de compactación en kW")
+    kilowatts = models.DecimalField(max_digits=5, decimal_places=2, null=True, blank=True, help_text="Consumo energético en kilowatts")
 
 class BrazoArticulado(EquipoBase):
     tipo = models.ForeignKey(TipoBrazoArticulado, on_delete=models.PROTECT)
-    capacidad = models.CharField(max_length=50)
+    capacidad = models.CharField(max_length=50, help_text="Capacidad máxima de carga")
+    tamaño = models.CharField(max_length=50, help_text="Dimensiones del brazo")
 
 class GruaHorquilla(EquipoBase):
     tipo = models.ForeignKey(TipoGruaHorquilla, on_delete=models.PROTECT)
-    capacidad = models.CharField(max_length=50, help_text="Capacidad de carga")
-    tamaño = models.CharField(max_length=50, help_text="Tamaño del equipo")
-    profundidad = models.DecimalField(max_digits=5, decimal_places=2, help_text="Profundidad en metros")
+    capacidad = models.CharField(max_length=50, help_text="Capacidad máxima de carga (en kg)")
+    tamaño = models.CharField(max_length=50, help_text="Dimensiones del equipo")
+    profundidad = models.DecimalField(max_digits=5, decimal_places=2, help_text="Profundidad máxima de operación (en metros)")
 
 class PlataformaDeElevacion(EquipoBase):
     tipo = models.ForeignKey(TipoPlataformaDeElevacion, on_delete=models.PROTECT)
-    capacidad = models.CharField(max_length=50)
-    tamaño = models.CharField(max_length=50)
+    capacidad = models.CharField(max_length=50, help_text="Capacidad de carga máxima (en kg)")
+    tamaño = models.CharField(max_length=50, help_text="Dimensiones del equipo")
+
 
 # El modelo Producto permanece igual pero actualizado para reflejar las relaciones
 class Producto(models.Model):
