@@ -49,7 +49,7 @@ class GruaHorquillaInline(EquipoBaseInline):
             'fields': ('tipo', 'combustible', 'modelo')
         }),
         ('Especificaciones', {
-            'fields': ('capacidad', 'tamaño', 'profundidad')
+            'fields': ('capacidad', 'tamaño')
         }),
         ('Notas y Fechas', {
             'fields': ('notas', 'fecha_creacion', 'fecha_actualizacion'),
@@ -94,7 +94,7 @@ class AlzaHombreInline(EquipoBaseInline):
             'fields': ('tipo', 'combustible', 'modelo')
         }),
         ('Especificaciones', {
-            'fields': ('altura', 'uso', 'tamaño', 'potencia_compactacion', 'kilowatts')
+            'fields': ('altura', 'uso', 'tamaño', 'kilowatts')
         }),
         ('Notas y Fechas', {
             'fields': ('notas', 'fecha_creacion', 'fecha_actualizacion'),
