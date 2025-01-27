@@ -89,7 +89,7 @@ STATIC_ROOT = BASE_DIR / 'staticfiles'   # Donde se almacenan después de collec
 
 # Media Files Configuration
 MEDIA_URL = '/media/'
-MEDIA_ROOT = BASE_DIR / 'media'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 # Whitenoise Configuration
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
