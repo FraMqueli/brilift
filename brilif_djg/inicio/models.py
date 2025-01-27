@@ -58,6 +58,8 @@ class EquipoBase(models.Model):
 # Modelos específicos para cada equipo
 class AlzaHombre(EquipoBase):
     tipo = models.ForeignKey(TipoAlzaHombre, on_delete=models.PROTECT)
+    altura = models.DecimalField(max_digits=5, decimal_places=2, help_text="Altura en metros")
+    uso = models.CharField(max_length=100, help_text="Tipo de uso del equipo")
     tamaño = models.CharField(max_length=50)
     potencia_compactacion = models.CharField(max_length=50)
     kilowatts = models.DecimalField(max_digits=5, decimal_places=2, null=True, blank=True)
@@ -68,7 +70,9 @@ class BrazoArticulado(EquipoBase):
 
 class GruaHorquilla(EquipoBase):
     tipo = models.ForeignKey(TipoGruaHorquilla, on_delete=models.PROTECT)
-    profundidad = models.DecimalField(max_digits=5, decimal_places=2)
+    capacidad = models.CharField(max_length=50, help_text="Capacidad de carga")
+    tamaño = models.CharField(max_length=50, help_text="Tamaño del equipo")
+    profundidad = models.DecimalField(max_digits=5, decimal_places=2, help_text="Profundidad en metros")
 
 class PlataformaDeElevacion(EquipoBase):
     tipo = models.ForeignKey(TipoPlataformaDeElevacion, on_delete=models.PROTECT)
