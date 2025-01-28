@@ -16,6 +16,7 @@ PROCESO_MAPPING = {
 
 
 
+
 # views.py
 
 def inicio(request):
@@ -93,11 +94,6 @@ def producto_detail(request, producto_id):
     return render(request, 'inicio/producto_detail.html', context)
 
 
-
-
-
-
-
 def get_proceso_info(proceso):
     """Obtiene la información de mapeo para un proceso específico"""
     return PROCESO_MAPPING.get(proceso, {})
@@ -136,15 +132,20 @@ def productos(request):
     """
     productos = Producto.objects.all()
 
-    # Aplicar filtros
+    # Filtros dinámicos
     search_query = request.GET.get('search', '').strip()
     combustible_filter = request.GET.get('combustible', '')
+
     if search_query:
-        productos = productos.filter(Q(nombre__icontains=search_query) | Q(descripcion__icontains=search_query))
+        productos = productos.filter(
+            Q(nombre__icontains=search_query) | Q(descripcion__icontains=search_query)
+        )
+
     if combustible_filter:
         q_combustible = Q()
         for proceso_info in PROCESO_MAPPING.values():
-            q_combustible |= Q(**{f"{proceso_info['modelo']}__combustible": combustible_filter})
+            modelo = proceso_info['modelo']
+            q_combustible |= Q(**{f"{modelo}__combustible": combustible_filter})
         productos = productos.filter(q_combustible)
 
     # Añadir combustible a cada producto
