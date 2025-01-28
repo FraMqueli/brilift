@@ -8,10 +8,10 @@ from .models import (
 )
 
 PROCESO_MAPPING = {
-    'MEZCLA': {'modelo': 'alza hombre', 'tipo_modelo': TipoAlzaHombre},
-    'COMPACTACION': {'modelo': 'brazo articulado', 'tipo_modelo': TipoBrazoArticulado},
-    'CORTE': {'modelo': 'cortadora', 'grua horquilla': TipoGruaHorquilla},
-    'DEMOLEDORA': {'modelo': 'demoledor', 'plataforma de elevación': TipoPlataformaDeElevacion},
+    'ALZA_HOMBRE': {'modelo': 'alza hombre', 'tipo_modelo': TipoAlzaHombre},
+    'BRAZO_ARTICULADO': {'modelo': 'brazo articulado', 'tipo_modelo': TipoBrazoArticulado},
+    'GRUA_HORQUILLA': {'modelo': 'grua horquilla', 'tipo_modelo': TipoGruaHorquilla},
+    'PLATAFORMA_DE_ELEVACIÓN': {'modelo': 'plataforma de elevación', 'tipo_modelo': TipoPlataformaDeElevacion},
     }
 
 
@@ -26,8 +26,9 @@ def inicio(request):
     for producto in productos:
         for proceso_info in PROCESO_MAPPING.values():
             modelo = proceso_info['modelo']
-            if hasattr(producto, modelo) and getattr(producto, modelo):
-                producto.combustible = getattr(producto, modelo).combustible
+            equipo = getattr(producto, modelo.replace(' ', '_'), None)  # Accede al modelo hijo
+            if equipo and hasattr(equipo, 'combustible'):
+                producto.combustible = equipo.combustible  # Combustible temporal para visualización
                 break
 
     # Contexto para la plantilla
@@ -75,9 +76,9 @@ def producto_detail(request, producto_id):
     }
     
     if producto.procesos in proceso_modelo:
-        modelo_relacionado = getattr(producto, proceso_modelo[producto.procesos], None)
-        if modelo_relacionado:
-            combustible = modelo_relacionado.combustible
+        equipo = getattr(producto, proceso_modelo[producto.procesos].replace(' ', '_'), None)
+        if equipo and hasattr(equipo, 'combustible'):
+            combustible = equipo.combustible
 
     # Manejo de cookies para los likes (código existente)
     user_cookie = request.COOKIES.get('user_cookie', None)

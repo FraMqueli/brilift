@@ -132,23 +132,34 @@
                     <button class="carousel-prev">←</button>
                     <button class="carousel-next">→</button>
                 </div>
-                {% if producto.combustible %}
+                {% if producto.grua_horquilla %}
+                    {% set combustible = producto.grua_horquilla.combustible %}
+                {% elif producto.alza_hombre %}
+                    {% set combustible = producto.alza_hombre.combustible %}
+                {% elif producto.brazo_articulado %}
+                    {% set combustible = producto.brazo_articulado.combustible %}
+                {% elif producto.plataforma_de_elevacion %}
+                    {% set combustible = producto.plataforma_de_elevacion.combustible %}
+                {% else %}
+                    {% set combustible = None %}
+                {% endif %}
+
+                {% if combustible %}
                     <span 
-                        {% if producto.combustible == 'Eléctrico' %}
+                        {% if combustible == 'Eléctrico' %}
                             style="background-color: #4e81f0; color: white; padding: 0.157rem 1rem; border-radius: 0px; font-weight: bold; text-align: right; margin-top: 2px;"
-                            
-                        {% elif producto.combustible == 'Bencina' %}
+                        {% elif combustible == 'Bencina' %}
                             style="background-color: #f39c12; color: white; padding: 0.157rem 1rem; border-radius: 0px; font-weight: bold; text-align: right; margin-top: 2px;"
-                        {% elif producto.combustible == 'Diesel' %}
+                        {% elif combustible == 'Diesel' %}
                             style="background-color: #423c3c; color: white; padding: 0.157rem 1rem; border-radius: 0px; font-weight: bold; text-align: right; margin-top: 2px;"
                         {% else %}
                             style="background-color: grey; color: white; padding: 0.157rem 1rem; border-radius: 0px; font-weight: bold; text-align: right; margin-top: 2px;"
                         {% endif %}
                     >
-                        {{ producto.combustible }}
+                        {{ combustible }}
                     </span>
-                    <h1>{{ producto.combustible }} </h1>
                 {% endif %}
+
                 <div class="product-info">
                     <h3>{{ producto.nombre }}</h3>
                     <p class="product-description">{{ producto.descripcion|truncatechars:100 }}</p>

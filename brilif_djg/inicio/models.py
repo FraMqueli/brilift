@@ -82,11 +82,7 @@ class PlataformaDeElevacion(EquipoBase):
 # El modelo Producto permanece igual pero actualizado para reflejar las relaciones
 from django.db import models
 from django.utils.translation import gettext_lazy as _
-
-class Combustible(models.TextChoices):
-    DIESEL = 'Diesel', _('Diesel')
-    BENCINA = 'Bencina', _('Bencina')
-    ELECTRICO = 'Eléctrico', _('Eléctrico')
+    
 
 class Producto(models.Model):
     DISPONIBLE = 'Disponible'
@@ -116,11 +112,6 @@ class Producto(models.Model):
 
     nombre = models.CharField(max_length=100)
     descripcion = models.TextField()
-    combustible = models.CharField(
-        max_length=20,
-        choices=Combustible.choices,
-        default=Combustible.DIESEL  # Puedes cambiar el valor por defecto si lo necesitas
-    )
     imagen_1 = models.ImageField(upload_to='productos/')
     imagen_2 = models.ImageField(upload_to='productos/', null=True, blank=True)
     imagen_3 = models.ImageField(upload_to='productos/', null=True, blank=True)
