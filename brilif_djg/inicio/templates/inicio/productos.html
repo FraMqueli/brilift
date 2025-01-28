@@ -132,17 +132,21 @@
                     <button class="carousel-prev">←</button>
                     <button class="carousel-next">→</button>
                 </div>
-                {% if producto.grua_horquilla %}
-                    {% with producto.grua_horquilla.combustible as combustible %}
-                {% elif producto.alza_hombre %}
-                    {% with producto.alza_hombre.combustible as combustible %}
-                {% elif producto.brazo_articulado %}
-                    {% with producto.brazo_articulado.combustible as combustible %}
-                {% elif producto.plataforma_de_elevacion %}
-                    {% with producto.plataforma_de_elevacion.combustible as combustible %}
-                {% else %}
-                    {% with None as combustible %}
-                {% endif %}
+                {% with None as combustible %}
+                    {% if producto.grua_horquilla %}
+                        {% with producto.grua_horquilla.combustible as combustible %}
+                            {% endwith %}
+                    {% elif producto.alza_hombre %}
+                        {% with producto.alza_hombre.combustible as combustible %}
+                            {% endwith %}
+                    {% elif producto.brazo_articulado %}
+                        {% with producto.brazo_articulado.combustible as combustible %}
+                            {% endwith %}
+                    {% elif producto.plataforma_de_elevacion %}
+                        {% with producto.plataforma_de_elevacion.combustible as combustible %}
+                            {% endwith %}
+                    {% endif %}
+                {% endwith %}
 
                 {% if combustible %}
                     <span 
@@ -159,6 +163,7 @@
                         {{ combustible }}
                     </span>
                 {% endif %}
+
 
                 <div class="product-info">
                     <h3>{{ producto.nombre }}</h3>
