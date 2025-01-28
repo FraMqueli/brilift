@@ -167,6 +167,17 @@ def productos(request):
             Q(plataformadeelevacion__combustible=combustible_filter)
         )
 
+    # Asignar combustible_display a cada producto
+    for producto in productos:
+        producto.combustible_display = None  # Inicializa como None
+        # Busca en cada modelo relacionado si existe un combustible
+        for modelo in ['gruahorquilla', 'alzahombre', 'brazoarticulado', 'plataformadeelevacion']:
+            if hasattr(producto, modelo):
+                equipo = getattr(producto, modelo)
+                if equipo and hasattr(equipo, 'combustible'):
+                    producto.combustible_display = equipo.combustible
+                    break  # Detiene la búsqueda si encuentra el combustible
+
     # Obtener procesos disponibles
     procesos = dict(Producto.PROCESOS_CHOICES)
 
