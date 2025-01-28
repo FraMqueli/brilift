@@ -8,33 +8,39 @@ from .models import (
 )
 
 PROCESO_MAPPING = {
-    'ALZA_HOMBRE': {'modelo': 'alza hombre', 'tipo_modelo': TipoAlzaHombre},
-    'BRAZO_ARTICULADO': {'modelo': 'brazo articulado', 'tipo_modelo': TipoBrazoArticulado},
-    'GRUA_HORQUILLA': {'modelo': 'grua horquilla', 'tipo_modelo': TipoGruaHorquilla},
-    'PLATAFORMA_DE_ELEVACIÓN': {'modelo': 'plataforma de elevación', 'tipo_modelo': TipoPlataformaDeElevacion},
-    }
+    'ALZA_HOMBRE': {'modelo': 'alza_hombre', 'tipo_modelo': TipoAlzaHombre},
+    'BRAZO_ARTICULADO': {'modelo': 'brazo_articulado', 'tipo_modelo': TipoBrazoArticulado},
+    'GRUA_HORQUILLA': {'modelo': 'grua_horquilla', 'tipo_modelo': TipoGruaHorquilla},
+    'PLATAFORMA_DE_ELEVACION': {'modelo': 'plataforma_de_elevacion', 'tipo_modelo': TipoPlataformaDeElevacion},
+}
 
+
+# views.py
 
 def inicio(request):
+    """
+    Vista principal para mostrar los productos destacados en la página de inicio.
+    """
+    # Obtener los productos con más "Me Gusta"
     productos = Producto.objects.all().order_by('-cantidad_me_gusta')[:3]
 
+    # Añadir información adicional a cada producto
     for producto in productos:
-        producto.combustible = None  # Inicializa como None
-        # Comprueba los modelos hijos y asigna el combustible correspondiente
-        if hasattr(producto, 'grua_horquilla') and producto.grua_horquilla:
-            producto.combustible = producto.grua_horquilla.combustible
-        elif hasattr(producto, 'alza_hombre') and producto.alza_hombre:
-            producto.combustible = producto.alza_hombre.combustible
-        elif hasattr(producto, 'brazo_articulado') and producto.brazo_articulado:
-            producto.combustible = producto.brazo_articulado.combustible
-        elif hasattr(producto, 'plataforma_de_elevacion') and producto.plataforma_de_elevacion:
-            producto.combustible = producto.plataforma_de_elevacion.combustible
+        for proceso_info in PROCESO_MAPPING.values():
+            modelo = proceso_info['modelo']
+            if hasattr(producto, modelo) and getattr(producto, modelo):
+                equipo = getattr(producto, modelo)
+                producto.combustible_display = equipo.combustible  # Usa un atributo diferente para evitar conflictos
+                break
 
+    # Contexto para la plantilla
     context = {
         'productos': productos,
-        'combustibles': Combustible.choices,  # Opcional para otras plantillas
+        'combustibles': Combustible.choices,
     }
+
     return render(request, 'inicio/inicio.html', context)
+
     
 
 def nosotros(request):
@@ -60,24 +66,22 @@ def contacto(request):
     return render(request, 'inicio/contacto.html')
 
 
+# views.py
+
 def producto_detail(request, producto_id):
     producto = get_object_or_404(Producto, id=producto_id)
     
-    # Obtener el combustible según el proceso
+    # Obtener el combustible desde el equipo relacionado
     combustible = None
-    proceso_modelo = {
-        'Grua Horquilla': 'grua horquilla',
-        'Alza Hombre': 'alza hombre',
-        'Brazo Articulado': 'brazo articulado',
-        'Plataforma de Elevación': 'plataforma de elevacion',
-    }
+    proceso_info = PROCESO_MAPPING.get(producto.procesos)
     
-    if producto.procesos in proceso_modelo:
-        equipo = getattr(producto, proceso_modelo[producto.procesos].replace(' ', '_'), None)
-        if equipo and hasattr(equipo, 'combustible'):
-            combustible = equipo.combustible
+    if proceso_info:
+        modelo = proceso_info['modelo']
+        equipo_relacionado = getattr(producto, modelo, None)
+        if equipo_relacionado:
+            combustible = equipo_relacionado.combustible
 
-    # Manejo de cookies para los likes (código existente)
+    # Manejo de cookies para los likes
     user_cookie = request.COOKIES.get('user_cookie', None)
     if not user_cookie:
         user_cookie = str(uuid.uuid4())
@@ -108,6 +112,7 @@ def producto_detail(request, producto_id):
         'combustible': combustible
     }
     return render(request, 'inicio/producto_detail.html', context)
+
 
 
 
