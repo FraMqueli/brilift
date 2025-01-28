@@ -133,15 +133,15 @@
                     <button class="carousel-next">→</button>
                 </div>
                 {% if producto.grua_horquilla %}
-                    {% set combustible = producto.grua_horquilla.combustible %}
+                    {% with producto.grua_horquilla.combustible as combustible %}
                 {% elif producto.alza_hombre %}
-                    {% set combustible = producto.alza_hombre.combustible %}
+                    {% with producto.alza_hombre.combustible as combustible %}
                 {% elif producto.brazo_articulado %}
-                    {% set combustible = producto.brazo_articulado.combustible %}
+                    {% with producto.brazo_articulado.combustible as combustible %}
                 {% elif producto.plataforma_de_elevacion %}
-                    {% set combustible = producto.plataforma_de_elevacion.combustible %}
+                    {% with producto.plataforma_de_elevacion.combustible as combustible %}
                 {% else %}
-                    {% set combustible = None %}
+                    {% with None as combustible %}
                 {% endif %}
 
                 {% if combustible %}
