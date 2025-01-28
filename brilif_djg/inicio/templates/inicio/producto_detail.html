@@ -4,22 +4,26 @@
 
 {% block content %}
 <section class="producto-detalle fade-in">
-    <!-- El resto del código anterior se mantiene igual hasta product-content -->
     <div class="container">
         <div class="producto-detalle-header">
             <h1 class="hero-title">{{ producto.nombre }}</h1>
             <div class="status-container">
+                <!-- Etiqueta de Estado -->
                 <span class="status {% if producto.estado == 'Disponible' %}disponible{% else %}no-disponible{% endif %}">
                     {{ producto.estado }}
                 </span>
+
+                <!-- Etiqueta de Combustible -->
                 {% if combustible %}
-                    <span class="combustible-badge
+                    <span class="combustible-badge 
                         {% if combustible == 'Eléctrico' %}electric
                         {% elif combustible == 'Bencina' %}gasoline
                         {% elif combustible == 'Diesel' %}diesel
                         {% else %}other{% endif %}">
                         {{ combustible }}
                     </span>
+                {% else %}
+                    <span class="combustible-badge other">No especificado</span>
                 {% endif %}
             </div>
         </div>
@@ -58,7 +62,7 @@
                                         <span>❤️</span>
                                         <span id="likes-count">{{ producto.cantidad_me_gusta }}</span>
                                     </span>
-                                    <button id="like-btn" {% if producto_liked %}disabled{% endif %} 
+                                    <button id="like-btn" {% if producto_liked %}disabled{% endif %}
                                             class="like-btn {% if producto_liked %}liked{% endif %}">
                                         {% if producto_liked %}Ya diste Me Gusta{% else %}Dar Me Gusta{% endif %}
                                     </button>
@@ -125,23 +129,37 @@
         align-items: center;
     }
 
-    .status {
+    .status, .combustible-badge {
         padding: 0.5rem 1rem;
         border-radius: 4px;
         font-weight: 600;
-    }
-
-    .combustible-badge {
-        padding: 0.157rem 1rem;
-        border-radius: 10px;
-        font-weight: bold;
         color: white;
+        text-transform: capitalize;
     }
 
-    .combustible-badge.electric { background-color: #4e81f0; }
-    .combustible-badge.gasoline { background-color: #f39c12; }
-    .combustible-badge.diesel { background-color: #000000; }
-    .combustible-badge.other { background-color: grey; }
+    .status.disponible {
+        background-color: #28a745;
+    }
+
+    .status.no-disponible {
+        background-color: #dc3545;
+    }
+
+    .combustible-badge.electric {
+        background-color: #4e81f0;
+    }
+
+    .combustible-badge.gasoline {
+        background-color: #f39c12;
+    }
+
+    .combustible-badge.diesel {
+        background-color: #000000;
+    }
+
+    .combustible-badge.other {
+        background-color: grey;
+    }
 
     .products-grid {
         display: grid;
@@ -241,8 +259,6 @@
         gap: 1rem;
         text-align: center;
     }
-    
-
 
     .back-btn {
         display: block;
