@@ -132,37 +132,24 @@
                     <button class="carousel-prev">←</button>
                     <button class="carousel-next">→</button>
                 </div>
-                {% with None as combustible %}
-                    {% if producto.grua_horquilla %}
-                        {% with producto.grua_horquilla.combustible as combustible %}
-                            {% endwith %}
-                    {% elif producto.alza_hombre %}
-                        {% with producto.alza_hombre.combustible as combustible %}
-                            {% endwith %}
-                    {% elif producto.brazo_articulado %}
-                        {% with producto.brazo_articulado.combustible as combustible %}
-                            {% endwith %}
-                    {% elif producto.plataforma_de_elevacion %}
-                        {% with producto.plataforma_de_elevacion.combustible as combustible %}
-                            {% endwith %}
+                {% for producto in productos %}
+                    {% if producto.combustible %}
+                        <span 
+                            {% if producto.combustible == 'Eléctrico' %}
+                                style="background-color: #4e81f0; color: white; padding: 0.157rem 1rem; border-radius: 0px; font-weight: bold; text-align: right; margin-top: 2px;"
+                            {% elif producto.combustible == 'Bencina' %}
+                                style="background-color: #f39c12; color: white; padding: 0.157rem 1rem; border-radius: 0px; font-weight: bold; text-align: right; margin-top: 2px;"
+                            {% elif producto.combustible == 'Diesel' %}
+                                style="background-color: #423c3c; color: white; padding: 0.157rem 1rem; border-radius: 0px; font-weight: bold; text-align: right; margin-top: 2px;"
+                            {% else %}
+                                style="background-color: grey; color: white; padding: 0.157rem 1rem; border-radius: 0px; font-weight: bold; text-align: right; margin-top: 2px;"
+                            {% endif %}
+                        >
+                            {{ producto.combustible }}
+                        </span>
                     {% endif %}
-                {% endwith %}
+                {% endfor %}
 
-                {% if combustible %}
-                    <span 
-                        {% if combustible == 'Eléctrico' %}
-                            style="background-color: #4e81f0; color: white; padding: 0.157rem 1rem; border-radius: 0px; font-weight: bold; text-align: right; margin-top: 2px;"
-                        {% elif combustible == 'Bencina' %}
-                            style="background-color: #f39c12; color: white; padding: 0.157rem 1rem; border-radius: 0px; font-weight: bold; text-align: right; margin-top: 2px;"
-                        {% elif combustible == 'Diesel' %}
-                            style="background-color: #423c3c; color: white; padding: 0.157rem 1rem; border-radius: 0px; font-weight: bold; text-align: right; margin-top: 2px;"
-                        {% else %}
-                            style="background-color: grey; color: white; padding: 0.157rem 1rem; border-radius: 0px; font-weight: bold; text-align: right; margin-top: 2px;"
-                        {% endif %}
-                    >
-                        {{ combustible }}
-                    </span>
-                {% endif %}
 
 
                 <div class="product-info">

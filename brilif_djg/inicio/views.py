@@ -16,27 +16,24 @@ PROCESO_MAPPING = {
 
 
 def inicio(request):
-    """
-    Vista principal para mostrar los productos destacados en la página de inicio.
-    """
-    # Obtener los productos con más "Me Gusta"
     productos = Producto.objects.all().order_by('-cantidad_me_gusta')[:3]
 
-    # Añadir información adicional a cada producto
     for producto in productos:
-        for proceso_info in PROCESO_MAPPING.values():
-            modelo = proceso_info['modelo']
-            equipo = getattr(producto, modelo.replace(' ', '_'), None)  # Accede al modelo hijo
-            if equipo and hasattr(equipo, 'combustible'):
-                producto.combustible = equipo.combustible  # Combustible temporal para visualización
-                break
+        producto.combustible = None  # Inicializa como None
+        # Comprueba los modelos hijos y asigna el combustible correspondiente
+        if hasattr(producto, 'grua_horquilla') and producto.grua_horquilla:
+            producto.combustible = producto.grua_horquilla.combustible
+        elif hasattr(producto, 'alza_hombre') and producto.alza_hombre:
+            producto.combustible = producto.alza_hombre.combustible
+        elif hasattr(producto, 'brazo_articulado') and producto.brazo_articulado:
+            producto.combustible = producto.brazo_articulado.combustible
+        elif hasattr(producto, 'plataforma_de_elevacion') and producto.plataforma_de_elevacion:
+            producto.combustible = producto.plataforma_de_elevacion.combustible
 
-    # Contexto para la plantilla
     context = {
         'productos': productos,
-        'combustibles': Combustible.choices,
+        'combustibles': Combustible.choices,  # Opcional para otras plantillas
     }
-
     return render(request, 'inicio/inicio.html', context)
     
 
