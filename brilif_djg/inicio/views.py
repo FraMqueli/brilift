@@ -130,43 +130,63 @@ def productos(request):
     """
     Vista principal de productos con filtros dinámicos y búsqueda.
     """
+    # Obtener todos los productos
     productos = Producto.objects.all()
 
     # Filtros dinámicos
     search_query = request.GET.get('search', '').strip()
+    proceso = request.GET.get('procesos', '')  # Obtiene el proceso seleccionado
+    categoria_filter = request.GET.get('categoria', '')
+    estado_filter = request.GET.get('estado', '')
     combustible_filter = request.GET.get('combustible', '')
 
+    # Aplicar búsqueda
     if search_query:
         productos = productos.filter(
             Q(nombre__icontains=search_query) | Q(descripcion__icontains=search_query)
         )
 
-    if combustible_filter:
-        q_combustible = Q()
-        for proceso_info in PROCESO_MAPPING.values():
-            modelo = proceso_info['modelo']
-            q_combustible |= Q(**{f"{modelo}__combustible": combustible_filter})
-        productos = productos.filter(q_combustible)
+    # Aplicar filtro por proceso
+    if proceso:
+        productos = productos.filter(procesos=proceso)
 
-    # Añadir combustible a cada producto
-    for producto in productos:
-        producto.combustible_display = None
-        for proceso_info in PROCESO_MAPPING.values():
-            modelo = proceso_info['modelo']
-            if hasattr(producto, modelo):
-                equipo = getattr(producto, modelo)
-                if equipo and hasattr(equipo, 'combustible'):
-                    producto.combustible_display = equipo.combustible
-                    break
+    # Aplicar filtro por categoría
+    if categoria_filter:
+        productos = productos.filter(categoria=categoria_filter)
+
+    # Aplicar filtro por estado
+    if estado_filter:
+        productos = productos.filter(estado=estado_filter)
+
+    # Aplicar filtro por combustible
+    if combustible_filter:
+        productos = productos.filter(
+            Q(gruahorquilla__combustible=combustible_filter) |
+            Q(alzahombre__combustible=combustible_filter) |
+            Q(brazoarticulado__combustible=combustible_filter) |
+            Q(plataformadeelevacion__combustible=combustible_filter)
+        )
+
+    # Obtener procesos disponibles
+    procesos = dict(Producto.PROCESOS_CHOICES)
+
+    # Determinar el proceso actual y su versión limpia para el template
+    proceso_actual = proceso  # Ejemplo: 'GRUA_HORQUILLA'
+    proceso_limpio = procesos.get(proceso_actual, '').replace('_', ' ').title() if proceso_actual else None
 
     context = {
         'productos': productos,
         'combustibles': Combustible.choices,
-        'search_query': search_query,
+        'procesos': procesos,
+        'proceso_actual': proceso_actual,
+        'proceso_limpio': proceso_limpio,
+        'categoria_actual': categoria_filter,
+        'estado_actual': estado_filter,
         'combustible_actual': combustible_filter,
     }
 
     return render(request, 'inicio/productos.html', context)
+
 
 
 

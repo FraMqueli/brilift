@@ -1,14 +1,12 @@
 {% extends 'inicio/base.html' %}
 {% load static %}
-{% block title %}Productos - Ecogab SPA{% endblock %}
+{% block title %}Productos - Brilift SPA{% endblock %}
 
 {% block content %}
-<!-- Imagen dinámica del proceso -->
-{% if request.GET.procesos %}
+<!-- Imagen dinámica del proceso asociado al producto -->
+{% if proceso_actual %}
 <div class="full-width-image-container">
-    <!-- Muestra el texto limpio (sin guiones bajos) -->
     <div class="text-overlay">{{ proceso_limpio }}</div>
-    <!-- Usa el valor original para las rutas de las imágenes -->
     <img src="{% static 'img/foto_'|add:proceso_actual|add:'.jpeg' %}" alt="Foto de {{ proceso_limpio }}">
 </div>
 {% else %}
@@ -25,6 +23,7 @@
     </a>
 </div>
 {% endif %}
+
 
 
 <section class="productos">
@@ -133,8 +132,6 @@
                     <button class="carousel-next">→</button>
                 </div>
                 <div>
-                    <h3>{{ producto.nombre }}</h3>
-                    <p>{{ producto.descripcion }}</p>
                     {% if producto.combustible_display %}
                         <span 
                             {% if producto.combustible_display == 'Eléctrico' %}
