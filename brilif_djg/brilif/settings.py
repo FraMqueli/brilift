@@ -1,6 +1,8 @@
 import os
 from decouple import config
 from pathlib import Path
+import logging
+from datetime import datetime
 
 # Base Directory
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -28,14 +30,81 @@ INSTALLED_APPS = [
 # Middleware
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
-    'whitenoise.middleware.WhiteNoiseMiddleware',  # Para servir archivos estáticos
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
+    'django.middleware.locale.LocaleMiddleware',  # Para manejar traducciones
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
+
+# Configuración de Logging
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'formatters': {
+        'verbose': {
+            'format': '{levelname} {asctime} {module} {process:d} {thread:d} {message}',
+            'style': '{',
+        },
+        'simple': {
+            'format': '{levelname} {message}',
+            'style': '{',
+        },
+    },
+    'filters': {
+        'require_debug_false': {
+            '()': 'django.utils.log.RequireDebugFalse',
+        },
+        'require_debug_true': {
+            '()': 'django.utils.log.RequireDebugTrue',
+        },
+    },
+    'handlers': {
+        'file': {
+            'level': 'ERROR',
+            'class': 'logging.FileHandler',
+            'filename': os.path.join(BASE_DIR, 'logs', f'django-{datetime.now().strftime("%Y-%m-%d")}.log'),
+            'formatter': 'verbose',
+        },
+        'console': {
+            'level': 'INFO',
+            'filters': ['require_debug_true'],
+            'class': 'logging.StreamHandler',
+            'formatter': 'simple',
+        },
+        'mail_admins': {
+            'level': 'ERROR',
+            'filters': ['require_debug_false'],
+            'class': 'django.utils.log.AdminEmailHandler',
+        }
+    },
+    'loggers': {
+        'django': {
+            'handlers': ['console', 'file'],
+            'level': 'INFO',
+            'propagate': True,
+        },
+        'django.request': {
+            'handlers': ['mail_admins', 'file'],
+            'level': 'ERROR',
+            'propagate': False,
+        },
+        'brilif': {  # Reemplaza con el nombre de tu proyecto
+            'handlers': ['console', 'file', 'mail_admins'],
+            'level': 'ERROR',
+            'propagate': True,
+        },
+    },
+}
+
+# Configuración de Administradores para notificaciones de error
+ADMINS = [
+    (config('ADMIN_NAME', default='Admin'), config('ADMIN_EMAIL', default='admin@example.com')),
+]
+MANAGERS = ADMINS
 
 # Root URL Configuration
 ROOT_URLCONF = 'brilif.urls'
@@ -53,6 +122,7 @@ TEMPLATES = [
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
             ],
+            'debug': DEBUG,
         },
     },
 ]
@@ -77,15 +147,24 @@ AUTH_PASSWORD_VALIDATORS = [
 ]
 
 # Internationalization
-LANGUAGE_CODE = 'en-us'
-TIME_ZONE = 'UTC'
+LANGUAGE_CODE = 'es'
+LANGUAGES = [
+    ('es', 'Español'),
+]
+TIME_ZONE = 'America/Santiago'
 USE_I18N = True
+USE_L10N = True
 USE_TZ = True
+
+# Configuración de archivos de traducción
+LOCALE_PATHS = [
+    os.path.join(BASE_DIR, 'locale'),
+]
 
 # Static Files Configuration
 STATIC_URL = '/static/'
-STATICFILES_DIRS = [BASE_DIR / 'static']  # Directorio de archivos estáticos
-STATIC_ROOT = BASE_DIR / 'staticfiles'   # Donde se almacenan después de collectstatic
+STATICFILES_DIRS = [BASE_DIR / 'static']
+STATIC_ROOT = BASE_DIR / 'staticfiles'
 
 # Media Files Configuration
 MEDIA_URL = '/media/'
@@ -104,3 +183,18 @@ EMAIL_PORT = config('EMAIL_PORT', default=25, cast=int)
 EMAIL_USE_TLS = config('EMAIL_USE_TLS', default=False, cast=bool)
 EMAIL_HOST_USER = config('EMAIL_HOST_USER', default='')
 EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD', default='')
+
+# Security Settings
+if not DEBUG:
+    # HTTPS/SSL
+    SECURE_SSL_REDIRECT = config('SECURE_SSL_REDIRECT', default=True, cast=bool)
+    SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+    
+    # Session/Cookie Settings
+    SESSION_COOKIE_SECURE = True
+    CSRF_COOKIE_SECURE = True
+    
+    # HSTS Settings
+    SECURE_HSTS_SECONDS = 31536000  # 1 año
+    SECURE_HSTS_INCLUDE_SUBDOMAINS = True
+    SECURE_HSTS_PRELOAD = True
