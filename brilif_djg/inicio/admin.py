@@ -170,11 +170,6 @@ class ProductoAdmin(admin.ModelAdmin):
             '''
         ]
 
-# admin.py
-
-
-
-
 class CustomAdminSite(AdminSite):
     login_template = 'custom_admin/login.html'
     

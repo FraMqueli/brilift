@@ -8,11 +8,12 @@ from .models import (
 )
 
 PROCESO_MAPPING = {
-    'ALZA_HOMBRE': {'modelo': 'alza_hombre', 'tipo_modelo': TipoAlzaHombre},
-    'BRAZO_ARTICULADO': {'modelo': 'brazo_articulado', 'tipo_modelo': TipoBrazoArticulado},
-    'GRUA_HORQUILLA': {'modelo': 'grua_horquilla', 'tipo_modelo': TipoGruaHorquilla},
-    'PLATAFORMA_DE_ELEVACION': {'modelo': 'plataforma_de_elevacion', 'tipo_modelo': TipoPlataformaDeElevacion},
+    'ALZA_HOMBRE': {'modelo': 'alzahombre', 'tipo_modelo': TipoAlzaHombre},
+    'BRAZO_ARTICULADO': {'modelo': 'brazoarticulado', 'tipo_modelo': TipoBrazoArticulado},
+    'GRUA_HORQUILLA': {'modelo': 'gruahorquilla', 'tipo_modelo': TipoGruaHorquilla},
+    'PLATAFORMA_DE_ELEVACION': {'modelo': 'plataformadeelevacion', 'tipo_modelo': TipoPlataformaDeElevacion},
 }
+
 
 
 # views.py
@@ -26,12 +27,14 @@ def inicio(request):
 
     # Añadir información adicional a cada producto
     for producto in productos:
-        for proceso_info in PROCESO_MAPPING.values():
+        producto.combustible_display = None
+        for proceso_key, proceso_info in PROCESO_MAPPING.items():
             modelo = proceso_info['modelo']
-            if hasattr(producto, modelo) and getattr(producto, modelo):
+            if hasattr(producto, modelo):  # Verificar si existe el atributo relacionado
                 equipo = getattr(producto, modelo)
-                producto.combustible_display = equipo.combustible  # Usa un atributo diferente para evitar conflictos
-                break
+                if equipo and hasattr(equipo, 'combustible'):  # Verificar si el equipo tiene un combustible asociado
+                    producto.combustible_display = equipo.combustible
+                    break
 
     # Contexto para la plantilla
     context = {
@@ -40,6 +43,7 @@ def inicio(request):
     }
 
     return render(request, 'inicio/inicio.html', context)
+
 
     
 
@@ -74,44 +78,20 @@ def producto_detail(request, producto_id):
     # Obtener el combustible desde el equipo relacionado
     combustible = None
     proceso_info = PROCESO_MAPPING.get(producto.procesos)
-    
     if proceso_info:
         modelo = proceso_info['modelo']
-        equipo_relacionado = getattr(producto, modelo, None)
-        if equipo_relacionado:
-            combustible = equipo_relacionado.combustible
-
-    # Manejo de cookies para los likes
-    user_cookie = request.COOKIES.get('user_cookie', None)
-    if not user_cookie:
-        user_cookie = str(uuid.uuid4())
-        response = render(request, 'inicio/producto_detail.html', {
-            'producto': producto,
-            'combustible': combustible
-        })
-        response.set_cookie('user_cookie', user_cookie, max_age=60*60*24*365)
-    else:
-        response = render(request, 'inicio/producto_detail.html', {
-            'producto': producto,
-            'combustible': combustible
-        })
-
-    liked_products = request.COOKIES.get(f'liked_products_{user_cookie}', '').split(',')
-    producto_liked = str(producto.id) in liked_products
-
-    if request.method == 'POST' and not producto_liked:
-        producto.cantidad_me_gusta += 1
-        producto.save()
-        liked_products.append(str(producto.id))
-        response.set_cookie(f'liked_products_{user_cookie}', ','.join(liked_products), max_age=60*60*24*365)
-        return JsonResponse({'success': True, 'likes_count': producto.cantidad_me_gusta})
+        if hasattr(producto, modelo):
+            equipo_relacionado = getattr(producto, modelo)
+            if equipo_relacionado and hasattr(equipo_relacionado, 'combustible'):
+                combustible = equipo_relacionado.combustible
 
     context = {
         'producto': producto,
-        'producto_liked': producto_liked,
-        'combustible': combustible
+        'combustible': combustible,
     }
+
     return render(request, 'inicio/producto_detail.html', context)
+
 
 
 
@@ -151,92 +131,42 @@ def obtener_tipos(request):
     })
 
 def productos(request):
-    """Vista principal de productos con filtros dinámicos y búsqueda"""
+    """
+    Vista principal de productos con filtros dinámicos y búsqueda.
+    """
     productos = Producto.objects.all()
-    context = {}
-    
-    # Obtener término de búsqueda
+
+    # Aplicar filtros
     search_query = request.GET.get('search', '').strip()
-    
-    # Aplicar búsqueda si existe un término
+    combustible_filter = request.GET.get('combustible', '')
     if search_query:
-        productos = productos.filter(
-            Q(nombre__icontains=search_query) |
-            Q(descripcion__icontains=search_query)
-        ).distinct()
-    
-    # Obtener filtros básicos
-    proceso = request.GET.get('procesos')
-    proceso_limpio = proceso.replace('_', ' ') if proceso else None  # Procesar para texto visible
-    tipo_id = request.GET.get('tipo')
-    categoria = request.GET.get('categoria')
-    estado = request.GET.get('estado')
-    combustible = request.GET.get('combustible')
-    
-    # Aplicar filtros básicos
-    if proceso:
-        productos = productos.filter(procesos=proceso)
-        proceso_info = get_proceso_info(proceso)
-        
-        if proceso_info:
-            # Filtrar por tipo si se seleccionó uno
-            if tipo_id:
-                productos = productos.filter(**{
-                    f"{proceso_info['modelo'].replace(' ', '_')}__tipo_id": tipo_id
-                })
-            
-            # Filtrar por campos adicionales si los hay
-            for campo in proceso_info.get('campos_adicionales', []):
-                valor_campo = request.GET.get(campo)
-                if valor_campo:
-                    productos = productos.filter(**{
-                        f"{proceso_info['modelo'].replace(' ', '_')}__{campo}": valor_campo
-                    })
-                
-                # Obtener valores únicos de este campo para los filtros
-                valores = productos.values_list(
-                    f"{proceso_info['modelo'].replace(' ', '_')}__{campo}",
-                    flat=True
-                ).distinct()
-                context[f'{campo}_valores'] = valores
-    
-    # Aplicar resto de filtros
-    if categoria:
-        productos = productos.filter(categoria=categoria)
-    if estado:
-        productos = productos.filter(estado=estado)
-    
-    if combustible:
+        productos = productos.filter(Q(nombre__icontains=search_query) | Q(descripcion__icontains=search_query))
+    if combustible_filter:
         q_combustible = Q()
         for proceso_info in PROCESO_MAPPING.values():
-            q_combustible |= Q(**{f"{proceso_info['modelo'].replace(' ', '_')}__combustible": combustible})
+            q_combustible |= Q(**{f"{proceso_info['modelo']}__combustible": combustible_filter})
         productos = productos.filter(q_combustible)
-    
+
     # Añadir combustible a cada producto
     for producto in productos:
+        producto.combustible_display = None
         for proceso_info in PROCESO_MAPPING.values():
-            modelo = proceso_info['modelo'].replace(' ', '_')
-            if hasattr(producto, modelo) and getattr(producto, modelo):
-                producto.combustible = getattr(producto, modelo).combustible
-                break
-    
-    # Actualizar contexto
-    context.update({
+            modelo = proceso_info['modelo']
+            if hasattr(producto, modelo):
+                equipo = getattr(producto, modelo)
+                if equipo and hasattr(equipo, 'combustible'):
+                    producto.combustible_display = equipo.combustible
+                    break
+
+    context = {
         'productos': productos,
         'combustibles': Combustible.choices,
-        'categorias': Producto.CATEGORIA_CHOICES,
-        'estados': Producto.ESTADO_CHOICES,
-        'procesos': dict(Producto.PROCESOS_CHOICES),
-        'proceso_actual': proceso,  # Original para las rutas
-        'proceso_limpio': proceso_limpio,  # Texto visible con espacios
-        'tipo_actual': tipo_id,
-        'categoria_actual': categoria,
-        'estado_actual': estado,
-        'combustible_actual': combustible,
         'search_query': search_query,
-    })
-    
+        'combustible_actual': combustible_filter,
+    }
+
     return render(request, 'inicio/productos.html', context)
+
 
 
 def ver_carrito(request):
