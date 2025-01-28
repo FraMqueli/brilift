@@ -105,8 +105,8 @@
             </button>
         </form>
     </div>
-    
-        <!-- Grid de productos -->
+            
+                <!-- Grid de productos -->
         <h1>Productos</h1>
         <div class="products-grid">
             {% for producto in productos %}
@@ -132,30 +132,27 @@
                     <button class="carousel-prev">←</button>
                     <button class="carousel-next">→</button>
                 </div>
-                {% for producto in productos %}
-                    <div>
-                        <h3>{{ producto.nombre }}</h3>
-                        <p>{{ producto.descripcion }}</p>
-                        {% if producto.combustible_display %}
-                            <span 
-                                {% if producto.combustible_display == 'Eléctrico' %}
-                                    style="background-color: #4e81f0; color: white; padding: 0.157rem 1rem; border-radius: 0px; font-weight: bold; text-align: right; margin-top: 2px;"
-                                {% elif producto.combustible_display == 'Bencina' %}
-                                    style="background-color: #f39c12; color: white; padding: 0.157rem 1rem; border-radius: 0px; font-weight: bold; text-align: right; margin-top: 2px;"
-                                {% elif producto.combustible_display == 'Diesel' %}
-                                    style="background-color: #423c3c; color: white; padding: 0.157rem 1rem; border-radius: 0px; font-weight: bold; text-align: right; margin-top: 2px;"
-                                {% else %}
-                                    style="background-color: grey; color: white; padding: 0.157rem 1rem; border-radius: 0px; font-weight: bold; text-align: right; margin-top: 2px;"
-                                {% endif %}
-                            >
-                                {{ producto.combustible_display }}
-                            </span>
-                        {% else %}
-                            <span style="color: grey;">No especificado</span>
-                        {% endif %}
-                    </div>
-                {% endfor %}
-            
+                <div>
+                    <h3>{{ producto.nombre }}</h3>
+                    <p>{{ producto.descripcion }}</p>
+                    {% if producto.combustible_display %}
+                        <span 
+                            {% if producto.combustible_display == 'Eléctrico' %}
+                                style="background-color: #4e81f0; color: white; padding: 0.157rem 1rem; border-radius: 0px; font-weight: bold; text-align: right; margin-top: 2px;"
+                            {% elif producto.combustible_display == 'Bencina' %}
+                                style="background-color: #f39c12; color: white; padding: 0.157rem 1rem; border-radius: 0px; font-weight: bold; text-align: right; margin-top: 2px;"
+                            {% elif producto.combustible_display == 'Diesel' %}
+                                style="background-color: #423c3c; color: white; padding: 0.157rem 1rem; border-radius: 0px; font-weight: bold; text-align: right; margin-top: 2px;"
+                            {% else %}
+                                style="background-color: grey; color: white; padding: 0.157rem 1rem; border-radius: 0px; font-weight: bold; text-align: right; margin-top: 2px;"
+                            {% endif %}
+                        >
+                            {{ producto.combustible_display }}
+                        </span>
+                    {% else %}
+                        <span style="color: grey;">No especificado</span>
+                    {% endif %}
+                </div>
                 <div class="product-info">
                     <h3>{{ producto.nombre }}</h3>
                     <p class="product-description">{{ producto.descripcion|truncatechars:100 }}</p>
@@ -171,6 +168,7 @@
             </div>
             {% endfor %}
         </div>
+
     </section>
 
     <!-- Estilos -->
