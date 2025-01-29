@@ -429,7 +429,7 @@
                 }
 
                 try {
-                    const response = await fetch(`/api/obtener_tipos/?proceso=${proceso}`);
+                    const response = await fetch(`/api/obtener_tipos/?proceso=${procesos}`);
                     const data = await response.json();
 
                     if (!response.ok) throw new Error('Error al cargar los datos.');
@@ -439,7 +439,7 @@
                     if (data.tipos && data.tipos.length > 0) {
                         html += `
                             <div class="filter-group">
-                                <label for="tipo">Tipo de ${proceso}:</label>
+                                <label for="tipo">Tipo de ${procesos}:</label>
                                 <select name="tipo" id="tipo">
                                     <option value="">Todos</option>
                                     ${data.tipos.map(tipo => 

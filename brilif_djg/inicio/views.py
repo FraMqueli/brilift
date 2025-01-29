@@ -101,29 +101,26 @@ def get_proceso_info(proceso):
 def obtener_tipos(request):
     """Vista para obtener tipos de proceso vía AJAX"""
     proceso = request.GET.get('procesos')
+    
+    # Añadir prints para debugging
+    print(f"Proceso recibido: {proceso}")
+    
     if proceso:
-        proceso = proceso.replace(' ', '_')    
+        proceso = proceso.replace(' ', '_').upper()  # Asegurarnos que está en mayúsculas
+    
     proceso_info = get_proceso_info(proceso)
+    print(f"Proceso info encontrada: {proceso_info}")
 
     if not proceso_info:
-        return JsonResponse({'tipos': []})
+        return JsonResponse({'tipos': [], 'error': 'Proceso no encontrado'})
     
     tipos = proceso_info['tipo_modelo'].objects.filter(activo=True)
-    tipos_data = [{'id': tipo.id, 'nombre': tipo.nombre} for tipo in tipos]
+    print(f"Tipos encontrados: {tipos.count()}")
     
-    # Obtener campos adicionales si existen
-    campos_adicionales = {}
-    if proceso_info.get('campos_adicionales'):
-        modelo_relacionado = proceso_info['modelo']
-        for campo in proceso_info['campos_adicionales']:
-            valores = Producto.objects.filter(procesos=proceso)\
-                .values_list(f'{modelo_relacionado}__{campo}', flat=True)\
-                .distinct()
-            campos_adicionales[campo] = list(valores)
+    tipos_data = [{'id': tipo.id, 'nombre': tipo.nombre} for tipo in tipos]
     
     return JsonResponse({
         'tipos': tipos_data,
-        'campos_adicionales': campos_adicionales
     })
 
 def productos(request):
