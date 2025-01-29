@@ -62,7 +62,8 @@
                                         <span>❤️</span>
                                         <span id="likes-count">{{ producto.cantidad_me_gusta }}</span>
                                     </span>
-                                    <button id="like-btn" {% if producto_liked %}disabled{% endif %}
+                                    <button id="like-btn" 
+                                            {% if producto_liked %}disabled{% endif %}
                                             class="like-btn {% if producto_liked %}liked{% endif %}">
                                         {% if producto_liked %}Ya diste Me Gusta{% else %}Dar Me Gusta{% endif %}
                                     </button>
@@ -96,6 +97,12 @@
         </div>
         {% endif %}
     </div>
+</section>
+
+<!-- CSRF Token Hidden Form -->
+<form id="like-form">
+    {% csrf_token %}
+</form>
 </section>
 
 <style>
@@ -298,23 +305,36 @@
     }
 </style>
 
+<!-- JavaScript para manejar los Likes -->
 <script>
-    document.getElementById('like-btn').addEventListener('click', function() {
-        fetch('{% url "producto_detail" producto.id %}', {
-            method: 'POST',
-            headers: {
-                'X-CSRFToken': '{{ csrf_token }}'
-            }
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                document.getElementById('likes-count').textContent = data.likes_count;
-                this.disabled = true;
-                this.textContent = 'Ya diste Me Gusta';
-                this.classList.add('liked');
-            }
+    document.addEventListener("DOMContentLoaded", function() {
+        const likeBtn = document.getElementById("like-btn");
+        const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+        const likesCount = document.getElementById("likes-count");
+
+        likeBtn.addEventListener("click", function() {
+            fetch('{% url "producto_detail" producto.id %}', {
+                method: "POST",
+                headers: {
+                    "X-CSRFToken": csrfToken,
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({})
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    likesCount.textContent = data.likes_count;
+                    likeBtn.disabled = true;
+                    likeBtn.textContent = "Ya diste Me Gusta";
+                    likeBtn.classList.add("liked");
+                } else {
+                    console.error("Error en la respuesta del servidor:", data);
+                }
+            })
+            .catch(error => console.error("Error en la petición:", error));
         });
     });
 </script>
+
 {% endblock %}
