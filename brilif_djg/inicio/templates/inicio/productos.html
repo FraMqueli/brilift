@@ -419,9 +419,14 @@
     <!-- JavaScript para manejar filtros dinámicos -->
     <script>
         document.addEventListener('DOMContentLoaded', function() {
+            // Elementos principales
             const procesosSelect = document.getElementById('procesos');
             const filtrosDinamicos = document.getElementById('filtrosDinamicos');
+            const searchForm = document.querySelector('.search-form');
+            const filterForm = document.getElementById('filterForm');
+            const searchInput = document.querySelector('input[name="search"]');
 
+            // Función para cargar filtros dinámicos
             async function cargarFiltrosDinamicos(proceso) {
                 if (!proceso) {
                     filtrosDinamicos.innerHTML = '';
@@ -429,29 +434,31 @@
                 }
 
                 try {
-                    const response = await fetch(`/api/obtener_tipos/?proceso=${procesos}`);
+                    console.log('Cargando filtros para proceso:', proceso);
+                    const response = await fetch(`/api/obtener_tipos/?procesos=${proceso}`);
                     const data = await response.json();
+                    console.log('Datos recibidos:', data);
 
                     if (!response.ok) throw new Error('Error al cargar los datos.');
-
+                    
                     let html = '';
-
+                    
+                    // Generar HTML para tipos
                     if (data.tipos && data.tipos.length > 0) {
                         html += `
                             <div class="filter-group">
-                                <label for="tipo">Tipo de ${procesos}:</label>
+                                <label for="tipo">Tipo de ${proceso.toLowerCase().replace('_', ' ')}:</label>
                                 <select name="tipo" id="tipo">
                                     <option value="">Todos</option>
                                     ${data.tipos.map(tipo => 
-                                        `<option value="${tipo.id}" ${tipo.id == '{{ request.GET.tipo|default_if_none:"" }}' ? 'selected' : ''}>
-                                            ${tipo.nombre}
-                                        </option>`
+                                        `<option value="${tipo.id}">${tipo.nombre}</option>`
                                     ).join('')}
                                 </select>
                             </div>
                         `;
                     }
 
+                    // Generar HTML para campos adicionales
                     if (data.campos_adicionales) {
                         for (const [campo, valores] of Object.entries(data.campos_adicionales)) {
                             if (valores && valores.length > 0) {
@@ -461,10 +468,7 @@
                                         <select name="${campo}" id="${campo}">
                                             <option value="">Todos</option>
                                             ${valores.map(valor => 
-                                                `<option value="{{ valor }}" {% if valor == request.GET.procesos|default_if_none:"" %}selected{% endif %}>
-
-                                                    ${valor}
-                                                </option>`
+                                                `<option value="${valor}">${valor}</option>`
                                             ).join('')}
                                         </select>
                                     </div>
@@ -480,41 +484,7 @@
                 }
             }
 
-            procesosSelect.addEventListener('change', function() {
-                cargarFiltrosDinamicos(this.value);
-            });
-
-            if (procesosSelect.value) {
-                cargarFiltrosDinamicos(procesosSelect.value);
-            }
-
-            document.querySelectorAll('.product-carousel').forEach(carousel => {
-                const items = carousel.querySelector('.carousel-items');
-                const prevBtn = carousel.querySelector('.carousel-prev');
-                const nextBtn = carousel.querySelector('.carousel-next');
-                let currentIndex = 0;
-
-                nextBtn.addEventListener('click', () => {
-                    currentIndex = (currentIndex + 1) % items.children.length;
-                    updateCarousel();
-                });
-
-                prevBtn.addEventListener('click', () => {
-                    currentIndex = (currentIndex - 1 + items.children.length) % items.children.length;
-                    updateCarousel();
-                });
-
-                function updateCarousel() {
-                    items.style.transform = `translateX(-${currentIndex * 100}%)`;
-                }
-            });
-        });
-        document.addEventListener('DOMContentLoaded', function() {
-            const searchForm = document.querySelector('.search-form');
-            const filterForm = document.getElementById('filterForm');
-            const searchInput = document.querySelector('input[name="search"]');
-            
-            // Función para combinar los parámetros de búsqueda y filtros
+            // Función para combinar parámetros de búsqueda y filtros
             function combineParams(searchParams, filterParams) {
                 const combinedParams = new URLSearchParams(filterParams);
                 if (searchParams.get('search')) {
@@ -523,22 +493,61 @@
                 return combinedParams.toString();
             }
 
-            // Manejar el envío del formulario de búsqueda
-            searchForm.addEventListener('submit', function(e) {
-                e.preventDefault();
-                const searchParams = new URLSearchParams(new FormData(searchForm));
-                const filterParams = new URLSearchParams(new FormData(filterForm));
-                const combinedParams = combineParams(searchParams, filterParams);
-                window.location.href = `${window.location.pathname}?${combinedParams}`;
+            // Event Listeners
+            procesosSelect.addEventListener('change', function() {
+                console.log('Proceso seleccionado:', this.value);
+                cargarFiltrosDinamicos(this.value);
             });
 
-            // Actualizar el campo oculto de búsqueda en el formulario de filtros
+            // Cargar filtros iniciales si hay un proceso seleccionado
+            if (procesosSelect.value) {
+                cargarFiltrosDinamicos(procesosSelect.value);
+            }
+
+            // Manejar envío del formulario de búsqueda
+            if (searchForm) {
+                searchForm.addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    const searchParams = new URLSearchParams(new FormData(searchForm));
+                    const filterParams = new URLSearchParams(new FormData(filterForm));
+                    const combinedParams = combineParams(searchParams, filterParams);
+                    window.location.href = `${window.location.pathname}?${combinedParams}`;
+                });
+            }
+
+            // Actualizar campo oculto de búsqueda en el formulario de filtros
             filterForm.addEventListener('submit', function(e) {
-                if (searchInput.value) {
+                if (searchInput && searchInput.value) {
                     const hiddenSearch = filterForm.querySelector('input[name="search"]');
                     if (hiddenSearch) {
                         hiddenSearch.value = searchInput.value;
                     }
+                }
+            });
+
+            // Manejo del carrusel si existe
+            document.querySelectorAll('.product-carousel').forEach(carousel => {
+                const items = carousel.querySelector('.carousel-items');
+                const prevBtn = carousel.querySelector('.carousel-prev');
+                const nextBtn = carousel.querySelector('.carousel-next');
+                let currentIndex = 0;
+
+                if (nextBtn) {
+                    nextBtn.addEventListener('click', () => {
+                        currentIndex = (currentIndex + 1) % items.children.length;
+                        updateCarousel();
+                    });
+                }
+
+                if (prevBtn) {
+                    prevBtn.addEventListener('click', () => {
+                        currentIndex = (currentIndex - 1 + items.children.length) % items.children.length;
+                        updateCarousel();
+                    });
+                }
+
+                function updateCarousel() {
+                    items.style.transform = `translateX(-${currentIndex * 100}%)`;
                 }
             });
         });
