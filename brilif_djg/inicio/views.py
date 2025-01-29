@@ -185,6 +185,7 @@ def productos(request):
     proceso_actual = proceso  # Ejemplo: 'GRUA_HORQUILLA'
     proceso_limpio = procesos.get(proceso_actual, '').replace('_', ' ').title() if proceso_actual else None
 
+    # **AQUÍ SE AÑADEN LOS ESTADOS Y CATEGORÍAS AL CONTEXTO**
     context = {
         'productos': productos,
         'combustibles': Combustible.choices,
@@ -194,6 +195,8 @@ def productos(request):
         'categoria_actual': categoria_filter,
         'estado_actual': estado_filter,
         'combustible_actual': combustible_filter,
+        'estados': Producto.ESTADO_CHOICES,  # Agregamos los estados al contexto
+        'categorias': Producto.CATEGORIA_CHOICES,  # Agregamos las categorías al contexto
     }
 
     return render(request, 'inicio/productos.html', context)
