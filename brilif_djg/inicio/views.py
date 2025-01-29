@@ -130,13 +130,16 @@ def productos(request):
     # Obtener todos los productos
     productos = Producto.objects.all()
 
-    # Filtros dinámicos
+    # Filtros existentes
     search_query = request.GET.get('search', '').strip()
-    proceso = request.GET.get('procesos', '')  # Obtiene el proceso seleccionado
+    proceso = request.GET.get('procesos', '')
     categoria_filter = request.GET.get('categoria', '')
     estado_filter = request.GET.get('estado', '')
     combustible_filter = request.GET.get('combustible', '')
-
+    
+    # Nuevo: Filtro por tipo (dinámico)
+    tipo_filter = request.GET.get('tipo')
+    
     # Aplicar búsqueda
     if search_query:
         productos = productos.filter(
@@ -146,6 +149,15 @@ def productos(request):
     # Aplicar filtro por proceso
     if proceso:
         productos = productos.filter(procesos=proceso)
+        
+        # Aplicar filtro dinámico por tipo si existe
+        if tipo_filter:
+            proceso_info = PROCESO_MAPPING.get(proceso, {})
+            if proceso_info:
+                modelo = proceso_info['modelo']
+                # Construir el filtro dinámicamente
+                tipo_filter_key = f"{modelo}__tipo"
+                productos = productos.filter(**{tipo_filter_key: tipo_filter})
 
     # Aplicar filtro por categoría
     if categoria_filter:
@@ -164,25 +176,33 @@ def productos(request):
             Q(plataformadeelevacion__combustible=combustible_filter)
         )
 
+    # Obtener el tipo actual para el contexto
+    tipo_actual = None
+    if proceso and tipo_filter:
+        proceso_info = PROCESO_MAPPING.get(proceso)
+        if proceso_info:
+            try:
+                tipo_actual = proceso_info['tipo_modelo'].objects.get(id=tipo_filter)
+            except proceso_info['tipo_modelo'].DoesNotExist:
+                pass
+
     # Asignar combustible_display a cada producto
     for producto in productos:
-        producto.combustible_display = None  # Inicializa como None
-        # Busca en cada modelo relacionado si existe un combustible
+        producto.combustible_display = None
         for modelo in ['gruahorquilla', 'alzahombre', 'brazoarticulado', 'plataformadeelevacion']:
             if hasattr(producto, modelo):
                 equipo = getattr(producto, modelo)
                 if equipo and hasattr(equipo, 'combustible'):
                     producto.combustible_display = equipo.combustible
-                    break  # Detiene la búsqueda si encuentra el combustible
+                    break
 
     # Obtener procesos disponibles
     procesos = dict(Producto.PROCESOS_CHOICES)
 
-    # Determinar el proceso actual y su versión limpia para el template
-    proceso_actual = proceso  # Ejemplo: 'GRUA_HORQUILLA'
+    # Determinar el proceso actual y su versión limpia
+    proceso_actual = proceso
     proceso_limpio = procesos.get(proceso_actual, '').replace('_', ' ').title() if proceso_actual else None
 
-    # **AQUÍ SE AÑADEN LOS ESTADOS Y CATEGORÍAS AL CONTEXTO**
     context = {
         'productos': productos,
         'combustibles': Combustible.choices,
@@ -192,8 +212,10 @@ def productos(request):
         'categoria_actual': categoria_filter,
         'estado_actual': estado_filter,
         'combustible_actual': combustible_filter,
-        'estados': Producto.ESTADO_CHOICES,  # Agregamos los estados al contexto
-        'categorias': Producto.CATEGORIA_CHOICES,  # Agregamos las categorías al contexto
+        'tipo_actual': tipo_actual,  # Añadido para mantener el estado del filtro
+        'estados': Producto.ESTADO_CHOICES,
+        'categorias': Producto.CATEGORIA_CHOICES,
+        # Añadir cualquier otro contexto necesario para los filtros dinámicos
     }
 
     return render(request, 'inicio/productos.html', context)

@@ -418,6 +418,7 @@
 
     <!-- JavaScript para manejar filtros dinámicos -->
     <script>
+        // Esperar a que el DOM esté completamente cargado
         document.addEventListener('DOMContentLoaded', function() {
             // Elementos principales
             const procesosSelect = document.getElementById('procesos');
@@ -426,7 +427,7 @@
             const filterForm = document.getElementById('filterForm');
             const searchInput = document.querySelector('input[name="search"]');
 
-            // Función para cargar filtros dinámicos
+            // Función principal para cargar filtros dinámicos
             async function cargarFiltrosDinamicos(proceso) {
                 if (!proceso) {
                     filtrosDinamicos.innerHTML = '';
@@ -443,6 +444,10 @@
                     
                     let html = '';
                     
+                    // Obtener el valor actual del tipo desde la URL
+                    const urlParams = new URLSearchParams(window.location.search);
+                    const tipoActual = urlParams.get('tipo');
+                    
                     // Generar HTML para tipos
                     if (data.tipos && data.tipos.length > 0) {
                         html += `
@@ -451,7 +456,9 @@
                                 <select name="tipo" id="tipo">
                                     <option value="">Todos</option>
                                     ${data.tipos.map(tipo => 
-                                        `<option value="${tipo.id}">${tipo.nombre}</option>`
+                                        `<option value="${tipo.id}" ${tipo.id == tipoActual ? 'selected' : ''}>
+                                            ${tipo.nombre}
+                                        </option>`
                                     ).join('')}
                                 </select>
                             </div>
@@ -462,13 +469,16 @@
                     if (data.campos_adicionales) {
                         for (const [campo, valores] of Object.entries(data.campos_adicionales)) {
                             if (valores && valores.length > 0) {
+                                const campoActual = urlParams.get(campo);
                                 html += `
                                     <div class="filter-group">
                                         <label for="${campo}">${campo.charAt(0).toUpperCase() + campo.slice(1)}:</label>
                                         <select name="${campo}" id="${campo}">
                                             <option value="">Todos</option>
                                             ${valores.map(valor => 
-                                                `<option value="${valor}">${valor}</option>`
+                                                `<option value="${valor}" ${valor == campoActual ? 'selected' : ''}>
+                                                    ${valor}
+                                                </option>`
                                             ).join('')}
                                         </select>
                                     </div>
@@ -478,6 +488,15 @@
                     }
 
                     filtrosDinamicos.innerHTML = html;
+
+                    // Agregar eventos a los nuevos selects
+                    const nuevosSelects = filtrosDinamicos.querySelectorAll('select');
+                    nuevosSelects.forEach(select => {
+                        select.addEventListener('change', function() {
+                            filterForm.submit();
+                        });
+                    });
+
                 } catch (error) {
                     console.error('Error al cargar los filtros:', error);
                     filtrosDinamicos.innerHTML = '<p style="color: red;">Error al cargar los filtros dinámicos.</p>';
@@ -494,14 +513,22 @@
             }
 
             // Event Listeners
-            procesosSelect.addEventListener('change', function() {
-                console.log('Proceso seleccionado:', this.value);
-                cargarFiltrosDinamicos(this.value);
-            });
+            if (procesosSelect) {
+                procesosSelect.addEventListener('change', function() {
+                    console.log('Proceso seleccionado:', this.value);
+                    cargarFiltrosDinamicos(this.value);
+                    
+                    // Limpiar los filtros dinámicos anteriores del formulario
+                    const urlParams = new URLSearchParams(window.location.search);
+                    urlParams.delete('tipo');
+                    // Actualizar la URL sin los filtros dinámicos
+                    window.history.replaceState({}, '', `${window.location.pathname}?${urlParams.toString()}`);
+                });
 
-            // Cargar filtros iniciales si hay un proceso seleccionado
-            if (procesosSelect.value) {
-                cargarFiltrosDinamicos(procesosSelect.value);
+                // Cargar filtros iniciales si hay un proceso seleccionado
+                if (procesosSelect.value) {
+                    cargarFiltrosDinamicos(procesosSelect.value);
+                }
             }
 
             // Manejar envío del formulario de búsqueda
@@ -516,40 +543,58 @@
             }
 
             // Actualizar campo oculto de búsqueda en el formulario de filtros
-            filterForm.addEventListener('submit', function(e) {
-                if (searchInput && searchInput.value) {
-                    const hiddenSearch = filterForm.querySelector('input[name="search"]');
-                    if (hiddenSearch) {
-                        hiddenSearch.value = searchInput.value;
+            if (filterForm) {
+                filterForm.addEventListener('submit', function(e) {
+                    if (searchInput && searchInput.value) {
+                        const hiddenSearch = filterForm.querySelector('input[name="search"]');
+                        if (hiddenSearch) {
+                            hiddenSearch.value = searchInput.value;
+                        }
                     }
-                }
-            });
+                });
+            }
 
-            // Manejo del carrusel si existe
+            // Inicializar carrusel si existe
+            initializeCarousel();
+        });
+
+        // Función para inicializar el carrusel
+        function initializeCarousel() {
             document.querySelectorAll('.product-carousel').forEach(carousel => {
                 const items = carousel.querySelector('.carousel-items');
                 const prevBtn = carousel.querySelector('.carousel-prev');
                 const nextBtn = carousel.querySelector('.carousel-next');
+                
+                if (!items || !prevBtn || !nextBtn) return;
+
                 let currentIndex = 0;
-
-                if (nextBtn) {
-                    nextBtn.addEventListener('click', () => {
-                        currentIndex = (currentIndex + 1) % items.children.length;
-                        updateCarousel();
-                    });
-                }
-
-                if (prevBtn) {
-                    prevBtn.addEventListener('click', () => {
-                        currentIndex = (currentIndex - 1 + items.children.length) % items.children.length;
-                        updateCarousel();
-                    });
-                }
+                const totalItems = items.children.length;
 
                 function updateCarousel() {
                     items.style.transform = `translateX(-${currentIndex * 100}%)`;
+                    
+                    // Actualizar estado de los botones
+                    prevBtn.disabled = currentIndex === 0;
+                    nextBtn.disabled = currentIndex === totalItems - 1;
                 }
+
+                nextBtn.addEventListener('click', () => {
+                    if (currentIndex < totalItems - 1) {
+                        currentIndex++;
+                        updateCarousel();
+                    }
+                });
+
+                prevBtn.addEventListener('click', () => {
+                    if (currentIndex > 0) {
+                        currentIndex--;
+                        updateCarousel();
+                    }
+                });
+
+                // Inicializar estado de los botones
+                updateCarousel();
             });
-        });
+        }
     </script>
 {% endblock %}
