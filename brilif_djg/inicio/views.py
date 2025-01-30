@@ -72,7 +72,6 @@ def contacto(request):
 
 
 # views.py
-
 def producto_detail(request, producto_id):
     producto = get_object_or_404(Producto, id=producto_id)
 
@@ -86,6 +85,14 @@ def producto_detail(request, producto_id):
             if equipo_relacionado and hasattr(equipo_relacionado, 'combustible'):
                 combustible = equipo_relacionado.combustible
 
+    # Recopilar imágenes disponibles
+    imagenes = []
+    for i in range(1, 5):  # Asumiendo que tienes hasta 4 imágenes (imagen_1 a imagen_4)
+        imagen_attr = f'imagen_{i}'
+        imagen = getattr(producto, imagen_attr, None)
+        if imagen:  # Verificar si la imagen existe
+            imagenes.append(imagen.url)
+
     # Manejo de cookies para los likes
     user_cookie = request.COOKIES.get('user_cookie', None)
     if not user_cookie:
@@ -93,7 +100,8 @@ def producto_detail(request, producto_id):
 
     response = render(request, 'inicio/producto_detail.html', {
         'producto': producto,
-        'combustible': combustible
+        'combustible': combustible,
+        'imagenes': imagenes  # Pasamos la lista de imágenes
     })
     response.set_cookie('user_cookie', user_cookie, max_age=60*60*24*365)
 
@@ -111,11 +119,6 @@ def producto_detail(request, producto_id):
 
         return JsonResponse({'success': True, 'likes_count': producto.cantidad_me_gusta})
 
-    context = {
-        'producto': producto,
-        'producto_liked': producto_liked,
-        'combustible': combustible
-    }
     return response
 
 
