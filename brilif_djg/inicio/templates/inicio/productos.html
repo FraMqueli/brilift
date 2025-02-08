@@ -193,13 +193,30 @@
             font-weight: bold;
             text-align: center;
             text-shadow: 2px 2px 10px rgba(0, 0, 0, 0.7);
-            width: 90%; /* Ajusta el ancho al 90% del contenedor */
-            max-width: 100%; /* Evita que el texto se salga del contenedor */
+            width: 80%; /* Ajusta el ancho al 90% del contenedor */
+            max-width: 90%; /* Evita que el texto se salga del contenedor */
             white-space: normal; /* Permite que el texto se divida en varias líneas si es necesario */
             word-wrap: break-word; /* Asegura que el texto se ajuste a la línea */
             padding: 10px;
             box-sizing: border-box;
-            font-size: calc(2rem + 5vw); /* Ajusta el tamaño de la fuente según el ancho de la ventana */
+            font-size: clamp(16px, 5vw, 36px);
+            line-height: 1.2 /* Ajusta el tamaño de la fuente según el ancho de la ventana */
+        }
+        @media (max-width: 768px) {
+            .text-overlay {
+                font-size: clamp(12px, 4vw, 28px); /* Reduce el tamaño en pantallas pequeñas */
+                line-height: 1.1; /* Reduce el espacio entre líneas */
+                padding: 5px; /* Reduce el padding */
+                width: 90%;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .text-overlay {
+                font-size: clamp(10px, 3.5vw, 22px); /* Reduce aún más el tamaño en móviles pequeños */
+                width: 95%;
+                top: 55%; /* Ajusta la posición vertical */
+            }
         }
 
         /* Estilo para el formulario de filtros */
