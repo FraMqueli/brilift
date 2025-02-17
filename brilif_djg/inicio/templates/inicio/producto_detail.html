@@ -376,48 +376,45 @@
     const likesCount = document.getElementById("likes-count");
     const productoId = "{{ producto.id }}";
 
-    // Obtener el user_cookie
-    function getCookie(name) {
-        let cookieValue = null;
-        if (document.cookie && document.cookie !== '') {
-            const cookies = document.cookie.split(';');
-            for (let i = 0; i < cookies.length; i++) {
-                const cookie = cookies[i].trim();
-                if (cookie.substring(0, name.length + 1) === (name + '=')) {
-                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                    break;
-                }
-            }
-        }
-        return cookieValue;
-    }
+    if (likeBtn) {
+        likeBtn.addEventListener("click", function(e) {
+            e.preventDefault();
+            console.log("Botón de like clickeado");
+            console.log("CSRF Token:", csrfToken);
+            console.log("Producto ID:", productoId);
 
-    likeBtn.addEventListener("click", function() {
-        fetch(`/producto/${productoId}/`, {  // Usa la misma URL del detalle
-            method: "POST",
-            headers: {
-                "X-CSRFToken": csrfToken,
-                "Content-Type": "application/json",
-            },
-            credentials: 'same-origin'
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                // Actualizar el contador y el botón
-                likesCount.textContent = data.likes_count;
-                likeBtn.disabled = true;
-                likeBtn.textContent = "Ya diste Me Gusta";
-                likeBtn.classList.add("liked");
-            } else {
-                console.error("Error:", data.error);
-            }
-        })
-        .catch(error => {
-            console.error("Error:", error);
-            alert("Hubo un error al procesar tu like. Por favor, intenta de nuevo.");
+            fetch(`${window.location.pathname}`, {
+                method: "POST",
+                headers: {
+                    "X-CSRFToken": csrfToken,
+                    "Content-Type": "application/json",
+                },
+                credentials: 'same-origin'
+            })
+            .then(response => {
+                console.log("Status de la respuesta:", response.status);
+                return response.json();
+            })
+            .then(data => {
+                console.log("Datos recibidos:", data);
+                if (data.success) {
+                    likesCount.textContent = data.likes_count;
+                    likeBtn.disabled = true;
+                    likeBtn.textContent = "Ya diste Me Gusta";
+                    likeBtn.classList.add("liked");
+                } else {
+                    console.error("Error en la respuesta:", data.error);
+                    alert("Error: " + data.error);
+                }
+            })
+            .catch(error => {
+                console.error("Error en la petición:", error);
+                alert("Hubo un error al procesar tu like. Por favor, intenta de nuevo.");
+            });
         });
-    });
+    } else {
+        console.error("No se encontró el botón de like");
+    }
 });
 
 
