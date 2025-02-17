@@ -369,107 +369,115 @@
     
 </style>
 
-<!-- JavaScript para manejar los Likes --><script>
-document.addEventListener("DOMContentLoaded", function() {
-    const likeBtn = document.getElementById("like-btn");
-    const likesCount = document.getElementById("likes-count");
-    const productoId = "{{ producto.id }}";  // Asegúrate de tener la variable disponible
-
-    if (likeBtn) {
-        likeBtn.addEventListener("click", function(e) {
-            e.preventDefault();
-            
-            // Obtén el token CSRF (si usas la cookie por defecto de Django)
-            const csrftoken = document.cookie
-                .split('; ')
-                .find(row => row.startsWith('csrftoken='))
-                ?.split('=')[1];
-
-            fetch(window.location.pathname, {
-                method: 'POST',
-                headers: {
-                    'X-CSRFToken': csrftoken,
-                    'X-Requested-With': 'XMLHttpRequest',  // <-- Indica que es AJAX
-                    'Content-Type': 'application/json',
-                    'Accept': 'application/json'
-                },
-                credentials: 'same-origin',  // Mantener las cookies en la petición
-                body: JSON.stringify({
-                    action: 'like',
-                    producto_id: productoId
+<!-- JavaScript para manejar los Likes -->
+<!-- Script para Dar Me Gusta -->
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        const likeBtn = document.getElementById("like-btn");
+        const likesCount = document.getElementById("likes-count");
+        const productoId = "{{ producto.id }}";  // Verifica que exista la variable
+    
+        if (likeBtn) {
+            likeBtn.addEventListener("click", function(e) {
+                e.preventDefault();
+                console.log("Botón de Like pulsado"); // <-- Debug
+    
+                // 1) Tomar el token CSRF de la cookie (Django genera la cookie "csrftoken")
+                const csrftoken = document.cookie
+                    .split('; ')
+                    .find(row => row.startsWith('csrftoken='))
+                    ?.split('=')[1];
+    
+                // 2) Hacer la petición AJAX (fetch)
+                fetch(window.location.pathname, {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRFToken': csrftoken,
+                        'X-Requested-With': 'XMLHttpRequest', // Identificamos que es AJAX
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    },
+                    credentials: 'same-origin',
+                    body: JSON.stringify({
+                        action: 'like',
+                        producto_id: productoId
+                    })
                 })
-            })
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error(`Error HTTP! status: ${response.status}`);
-                }
-                return response.json();
-            })
-            .then(data => {
-                if (data.success) {
-                    // Actualizamos el contador de "Me Gusta"
-                    likesCount.textContent = data.likes_count;
-                    
-                    // Deshabilitamos el botón para que no vuelva a dar like
-                    likeBtn.disabled = true;
-                    likeBtn.textContent = "Ya diste Me Gusta";
-                    likeBtn.classList.add("liked");
-                } else {
-                    console.error("Error:", data.error);
-                }
-            })
-            .catch(error => {
-                console.error("Error en la petición:", error);
+                .then(response => {
+                    console.log("Respuesta recibida, status:", response.status); // <-- Debug
+                    if (!response.ok) {
+                        throw new Error(`Error HTTP! status: ${response.status}`);
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    console.log("Datos recibidos del servidor:", data); // <-- Debug
+                    if (data.success) {
+                        // 3) Actualizar contador
+                        likesCount.textContent = data.likes_count;
+                        
+                        // 4) Deshabilitar el botón y cambiar texto
+                        likeBtn.disabled = true;
+                        likeBtn.textContent = "Ya diste Me Gusta";
+                        likeBtn.classList.add("liked");  // por si tienes estilos para .liked
+                    } else {
+                        // Posible error (ya se le dio like o algo en el servidor)
+                        console.error("Error en data:", data.error);
+                    }
+                })
+                .catch(error => {
+                    console.error("Error en la petición AJAX:", error);
+                });
             });
-        });
-    }
-});
-
-
-document.addEventListener("DOMContentLoaded", function () {
-    const carousel = document.querySelector(".carousel-items");
-    const images = document.querySelectorAll(".carousel-image");
-    const prevButton = document.querySelector(".carousel-prev");
-    const nextButton = document.querySelector(".carousel-next");
-    let currentIndex = 0;
-    let totalImages = images.length;
-    let autoSlide;
-
-    function updateCarousel() {
-        const offset = -currentIndex * 100;
-        carousel.style.transform = `translateX(${offset}%)`;
-    }
-
-    nextButton.addEventListener("click", function () {
-        currentIndex = (currentIndex + 1) % totalImages;
-        updateCarousel();
-        resetAutoSlide();
+        } else {
+            console.log("No se encontró el botón de Like en el DOM"); // <-- Debug
+        }
     });
-
-    prevButton.addEventListener("click", function () {
-        currentIndex = (currentIndex - 1 + totalImages) % totalImages;
-        updateCarousel();
-        resetAutoSlide();
-    });
-
-    function autoSlideFunction() {
-        autoSlide = setInterval(() => {
+    </script>
+    
+    <!-- Script para tu carrusel de imágenes -->
+    <script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const carousel = document.querySelector(".carousel-items");
+        const images = document.querySelectorAll(".carousel-image");
+        const prevButton = document.querySelector(".carousel-prev");
+        const nextButton = document.querySelector(".carousel-next");
+        let currentIndex = 0;
+        let totalImages = images.length;
+        let autoSlide;
+    
+        function updateCarousel() {
+            const offset = -currentIndex * 100;
+            carousel.style.transform = `translateX(${offset}%)`;
+        }
+    
+        nextButton.addEventListener("click", function () {
             currentIndex = (currentIndex + 1) % totalImages;
             updateCarousel();
-        }, 4000);
-    }
-
-    function resetAutoSlide() {
-        clearInterval(autoSlide);
+            resetAutoSlide();
+        });
+    
+        prevButton.addEventListener("click", function () {
+            currentIndex = (currentIndex - 1 + totalImages) % totalImages;
+            updateCarousel();
+            resetAutoSlide();
+        });
+    
+        function autoSlideFunction() {
+            autoSlide = setInterval(() => {
+                currentIndex = (currentIndex + 1) % totalImages;
+                updateCarousel();
+            }, 4000);
+        }
+    
+        function resetAutoSlide() {
+            clearInterval(autoSlide);
+            autoSlideFunction();
+        }
+    
         autoSlideFunction();
-    }
-
-    autoSlideFunction();
-});
+    });
 </script>
-
-
-
-</script>
+    
 
 {% endblock %}
