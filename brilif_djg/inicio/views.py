@@ -71,7 +71,12 @@ def contacto(request):
     return render(request, 'inicio/contacto.html')
 
 
-# views.py
+from django.shortcuts import render, get_object_or_404
+from django.http import JsonResponse
+import uuid
+from .models import Producto
+from .views import PROCESO_MAPPING  # Asegúrate de importar tu mapeo correctamente
+
 def producto_detail(request, producto_id):
     producto = get_object_or_404(Producto, id=producto_id)
 
@@ -85,41 +90,60 @@ def producto_detail(request, producto_id):
             if equipo_relacionado and hasattr(equipo_relacionado, 'combustible'):
                 combustible = equipo_relacionado.combustible
 
-    # Recopilar imágenes disponibles
+    # Recopilar imágenes disponibles (asumiendo que tienes imagen_1 a imagen_4)
     imagenes = []
-    for i in range(1, 5):  # Asumiendo que tienes hasta 4 imágenes (imagen_1 a imagen_4)
+    for i in range(1, 5):
         imagen_attr = f'imagen_{i}'
         imagen = getattr(producto, imagen_attr, None)
-        if imagen:  # Verificar si la imagen existe
+        if imagen:
             imagenes.append(imagen.url)
 
-    # Manejo de cookies para los likes
+    # Manejo de cookies para los "likes"
     user_cookie = request.COOKIES.get('user_cookie', None)
     if not user_cookie:
         user_cookie = str(uuid.uuid4())
 
-    response = render(request, 'inicio/producto_detail.html', {
-        'producto': producto,
-        'combustible': combustible,
-        'imagenes': imagenes  # Pasamos la lista de imágenes
-    })
-    response.set_cookie('user_cookie', user_cookie, max_age=60*60*24*365)
-
-    # Obtener los productos que ya han sido "liked"
-    liked_products = request.COOKIES.get(f'liked_products_{user_cookie}', '').split(',')
+    # Obtener los productos a los que el usuario ya le ha dado "Me Gusta"
+    liked_products = request.COOKIES.get(f'liked_products_{user_cookie}', '')
+    liked_products = liked_products.split(',') if liked_products else []
     producto_liked = str(producto.id) in liked_products
 
-    # Manejar la solicitud POST para los "likes"
-    if request.method == 'POST' and not producto_liked:
+    # Manejar la solicitud POST para incrementar "Me Gusta"
+    if request.method == 'POST':
+        # Si ya dio "Me Gusta", no permitimos otro
+        if producto_liked:
+            return JsonResponse({
+                'success': False,
+                'error': 'Ya diste Me Gusta a este producto'
+            }, status=400)
+        
+        # Incrementar el contador y guardar el like
         producto.cantidad_me_gusta += 1
         producto.save()
 
         liked_products.append(str(producto.id))
+        response = JsonResponse({
+            'success': True,
+            'likes_count': producto.cantidad_me_gusta
+        })
+
+        # Setear las cookies con el identificador del usuario y los productos "liked"
+        response.set_cookie('user_cookie', user_cookie, max_age=60*60*24*365)
         response.set_cookie(f'liked_products_{user_cookie}', ','.join(liked_products), max_age=60*60*24*365)
 
-        return JsonResponse({'success': True, 'likes_count': producto.cantidad_me_gusta})
+        return response
 
+    # Para solicitudes GET: renderizar la plantilla con la información del producto,
+    # incluyendo si ya se le dio "Me Gusta" o no.
+    response = render(request, 'inicio/producto_detail.html', {
+        'producto': producto,
+        'combustible': combustible,
+        'imagenes': imagenes,
+        'producto_liked': producto_liked,
+    })
+    response.set_cookie('user_cookie', user_cookie, max_age=60*60*24*365)
     return response
+
 
 
 
