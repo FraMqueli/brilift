@@ -111,6 +111,15 @@ TEMPLATES = [
 # WSGI Application
 WSGI_APPLICATION = 'brilif.wsgi.application'
 
+
+CSRF_TRUSTED_ORIGINS = [
+    'http://127.0.0.1:8000',
+    'http://localhost:8000',
+    'http://www.brilift.cl',
+    'https://www.brilift.cl',	
+]
+
+
 # Database
 DATABASES = {
     'default': {

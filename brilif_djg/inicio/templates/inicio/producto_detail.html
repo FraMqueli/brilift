@@ -3,8 +3,10 @@
 {% block title %}{{ producto.nombre }} - Detalles{% endblock %}
 
 {% block content %}
-{% csrf_token %}
-<section class="producto-detalle fade-in">
+<form id="like-form" style="display: none;">
+    {% csrf_token %}
+</form>
+  <section class="producto-detalle fade-in">
     <div class="container">
         <div class="producto-detalle-header">
             <h1 class="hero-title">{{ producto.nombre }}</h1>
