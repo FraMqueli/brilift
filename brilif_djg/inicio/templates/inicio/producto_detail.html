@@ -368,120 +368,133 @@
     
 </style>
 
-<!-- JavaScript para manejar los Likes -->
+<!-- JavaScript para manejar los Likes -- Asegúrate de incluir el formulario oculto CSRF en tu template -->
+<form id="like-form" style="display:none;">
+    {% csrf_token %}
+</form>
+
 <script>
-    document.addEventListener("DOMContentLoaded", function() {
-        const likeBtn = document.getElementById("like-btn");
-        const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
-        const likesCount = document.getElementById("likes-count");
-        const productoId = "{{ producto.id }}";
-    
-        // Función para obtener el valor de una cookie por nombre
-        function getCookie(name) {
-            let cookieValue = null;
-            if (document.cookie && document.cookie !== "") {
-                const cookies = document.cookie.split(";");
-                for (let i = 0; i < cookies.length; i++) {
-                    const cookie = cookies[i].trim();
-                    if (cookie.startsWith(name + "=")) {
-                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                        break;
-                    }
+document.addEventListener("DOMContentLoaded", function() {
+    // Función para obtener el valor de una cookie por su nombre
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== "") {
+            const cookies = document.cookie.split(";");
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.startsWith(name + "=")) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
                 }
             }
-            return cookieValue;
         }
+        return cookieValue;
+    }
+
+    const likeBtn = document.getElementById("like-btn");
+    const likesCount = document.getElementById("likes-count");
+    // Se obtiene el token CSRF desde el formulario oculto
+    const csrfToken = document.querySelector('#like-form [name=csrfmiddlewaretoken]').value;
+    const productoId = "{{ producto.id }}";
+
+    // Obtener el identificador único del usuario (user_cookie)
+    let userCookie = getCookie("user_cookie");
+    if (!userCookie) {
+        console.warn("No se encontró 'user_cookie'. Recarga la página para que se establezca.");
+        // En producción, el servidor asigna la cookie en la respuesta GET.
+        userCookie = "temp"; // Valor temporal para poder depurar
+    }
+
+    // Definir el nombre de la cookie para los likes según el usuario
+    const likedProductsCookieName = "liked_products_" + userCookie;
     
-        // Obtener el identificador único del usuario (user_cookie)
-        const userCookie = getCookie("user_cookie");
-        // Definir el nombre de la cookie para los "likes" usando el user_cookie
-        const likedProductsCookieName = "liked_products_" + userCookie;
-        
-        // Recuperar la lista de productos a los que ya se les dio like para este usuario
-        let likedProducts = getCookie(likedProductsCookieName);
-        likedProducts = likedProducts ? likedProducts.split(",") : [];
+    // Recuperar la lista de productos a los que el usuario ya dio "Me Gusta"
+    let likedProducts = getCookie(likedProductsCookieName);
+    likedProducts = likedProducts ? likedProducts.split(",") : [];
     
-        // Si el usuario ya dio like a este producto, se deshabilita el botón
-        if (likedProducts.includes(productoId)) {
-            likeBtn.disabled = true;
-            likeBtn.textContent = "Ya diste Me Gusta";
-            likeBtn.classList.add("liked");
-        }
+    // Si el usuario ya dio like a este producto, se deshabilita el botón
+    if (likedProducts.includes(productoId)) {
+        likeBtn.disabled = true;
+        likeBtn.textContent = "Ya diste Me Gusta";
+        likeBtn.classList.add("liked");
+    }
     
-        // Evento para el botón de "Me Gusta"
-        likeBtn.addEventListener("click", function() {
-            fetch('{% url "producto_detail" producto.id %}', {
-                method: "POST",
-                headers: {
-                    "X-CSRFToken": csrfToken,
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify({})  // No es necesario enviar datos adicionales
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    // Actualizar la cantidad de "likes" en la interfaz
-                    likesCount.textContent = data.likes_count;
-                    likeBtn.disabled = true;
-                    likeBtn.textContent = "Ya diste Me Gusta";
-                    likeBtn.classList.add("liked");
-    
-                    // Actualizar la cookie para incluir el producto actual
-                    likedProducts.push(productoId);
-                    document.cookie = `${likedProductsCookieName}=${likedProducts.join(",")}; path=/; max-age=31536000`;
-                } else {
-                    console.error("Error en la respuesta del servidor:", data.error);
-                    alert("No se pudo dar Me Gusta: " + data.error);
-                }
-            })
-            .catch(error => console.error("Error en la petición:", error));
-        });
+    // Evento para el botón de "Me Gusta"
+    likeBtn.addEventListener("click", function() {
+        fetch('{% url "producto_detail" producto.id %}', {
+            method: "POST",
+            headers: {
+                "X-CSRFToken": csrfToken,
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({})  // No enviamos datos adicionales
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                // Actualizar el contador de likes en la interfaz
+                likesCount.textContent = data.likes_count;
+                likeBtn.disabled = true;
+                likeBtn.textContent = "Ya diste Me Gusta";
+                likeBtn.classList.add("liked");
+                
+                // Actualizar la cookie para incluir el producto actual
+                likedProducts.push(productoId);
+                document.cookie = `${likedProductsCookieName}=${likedProducts.join(",")}; path=/; max-age=31536000`;
+            } else {
+                console.error("Error en la respuesta del servidor:", data.error);
+                alert("No se pudo dar Me Gusta: " + data.error);
+            }
+        })
+        .catch(error => console.error("Error en la petición:", error));
     });
-    
-    
-    // Código para el carrusel (permanece sin cambios)
-    document.addEventListener("DOMContentLoaded", function () {
-        const carousel = document.querySelector(".carousel-items");
-        const images = document.querySelectorAll(".carousel-image");
-        const prevButton = document.querySelector(".carousel-prev");
-        const nextButton = document.querySelector(".carousel-next");
-        let currentIndex = 0;
-        let totalImages = images.length;
-        let autoSlide;
-    
-        function updateCarousel() {
-            const offset = -currentIndex * 100;
-            carousel.style.transform = `translateX(${offset}%)`;
-        }
-    
-        nextButton.addEventListener("click", function () {
+});
+</script>
+
+<!-- Código para el carrusel (sin cambios) -->
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    const carousel = document.querySelector(".carousel-items");
+    const images = document.querySelectorAll(".carousel-image");
+    const prevButton = document.querySelector(".carousel-prev");
+    const nextButton = document.querySelector(".carousel-next");
+    let currentIndex = 0;
+    let totalImages = images.length;
+    let autoSlide;
+
+    function updateCarousel() {
+        const offset = -currentIndex * 100;
+        carousel.style.transform = `translateX(${offset}%)`;
+    }
+
+    nextButton.addEventListener("click", function () {
+        currentIndex = (currentIndex + 1) % totalImages;
+        updateCarousel();
+        resetAutoSlide();
+    });
+
+    prevButton.addEventListener("click", function () {
+        currentIndex = (currentIndex - 1 + totalImages) % totalImages;
+        updateCarousel();
+        resetAutoSlide();
+    });
+
+    function autoSlideFunction() {
+        autoSlide = setInterval(() => {
             currentIndex = (currentIndex + 1) % totalImages;
             updateCarousel();
-            resetAutoSlide();
-        });
-    
-        prevButton.addEventListener("click", function () {
-            currentIndex = (currentIndex - 1 + totalImages) % totalImages;
-            updateCarousel();
-            resetAutoSlide();
-        });
-    
-        function autoSlideFunction() {
-            autoSlide = setInterval(() => {
-                currentIndex = (currentIndex + 1) % totalImages;
-                updateCarousel();
-            }, 4000);
-        }
-    
-        function resetAutoSlide() {
-            clearInterval(autoSlide);
-            autoSlideFunction();
-        }
-    
+        }, 4000);
+    }
+
+    function resetAutoSlide() {
+        clearInterval(autoSlide);
         autoSlideFunction();
-    });
-</script>    
+    }
+
+    autoSlideFunction();
+});
+</script>
+
 
 
 {% endblock %}
