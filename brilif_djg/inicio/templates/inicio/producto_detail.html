@@ -65,8 +65,8 @@
                                         <span id="likes-count">{{ producto.cantidad_me_gusta }}</span>
                                     </span>
                                     <button id="like-btn" 
-                                        {% if producto_liked %}disabled{% endif %}
-                                        class="like-btn {% if producto_liked %}liked{% endif %}">
+                                            {% if producto_liked %}disabled{% endif %}
+                                            class="like-btn {% if producto_liked %}liked{% endif %}">
                                         {% if producto_liked %}Ya diste Me Gusta{% else %}Dar Me Gusta{% endif %}
                                     </button>
                                 </div>
@@ -368,18 +368,15 @@
     
 </style>
 
-<!-- JavaScript para manejar los Likes -- Asegúrate de incluir el formulario oculto CSRF en tu template -->
-<form id="like-form" style="display:none;">
-    {% csrf_token %}
-</form>
-<!-- Formulario oculto (opcional, ya que usaremos la cookie) -->
-<form id="like-form" style="display:none;">
-    {% csrf_token %}
-</form>
-
+<!-- JavaScript para manejar los Likes -->
 <script>
-document.addEventListener("DOMContentLoaded", function() {
-    // Función para obtener una cookie por su nombre
+   document.addEventListener("DOMContentLoaded", function() {
+    const likeBtn = document.getElementById("like-btn");
+    const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+    const likesCount = document.getElementById("likes-count");
+    const productoId = "{{ producto.id }}";
+
+    // Función para obtener cookies
     function getCookie(name) {
         let cookieValue = null;
         if (document.cookie && document.cookie !== "") {
@@ -395,41 +392,22 @@ document.addEventListener("DOMContentLoaded", function() {
         return cookieValue;
     }
 
-    const likeBtn = document.getElementById("like-btn");
-    const likesCount = document.getElementById("likes-count");
-    // Obtener el token CSRF desde la cookie "csrftoken"
-    const csrfToken = getCookie("csrftoken");
-    const productoId = "{{ producto.id }}";
-
-    // Obtener el identificador único del usuario (user_cookie)
-    let userCookie = getCookie("user_cookie");
-    if (!userCookie) {
-        console.warn("No se encontró 'user_cookie'. Recarga la página para que se establezca.");
-        // En producción, el servidor la establece al renderizar la página.
-    }
-
-    // Definir el nombre de la cookie para los likes usando el user_cookie
-    const likedProductsCookieName = "liked_products_" + userCookie;
-    
-    // Recuperar la lista de productos a los que ya se les dio "Me Gusta"
-    let likedProducts = getCookie(likedProductsCookieName);
+    // Revisar si el usuario ya ha dado like
+    let likedProducts = getCookie("liked_products");
     likedProducts = likedProducts ? likedProducts.split(",") : [];
-    
-    // Si el usuario ya dio like a este producto, deshabilitar el botón
+
     if (likedProducts.includes(productoId)) {
         likeBtn.disabled = true;
         likeBtn.textContent = "Ya diste Me Gusta";
         likeBtn.classList.add("liked");
     }
-    
-    // Evento para el botón de "Me Gusta"
+
     likeBtn.addEventListener("click", function() {
         fetch('{% url "producto_detail" producto.id %}', {
             method: "POST",
-            credentials: "same-origin",
             headers: {
                 "X-CSRFToken": csrfToken,
-                "Content-Type": "application/json"
+                "Content-Type": "application/json",
             },
             body: JSON.stringify({})
         })
@@ -440,21 +418,19 @@ document.addEventListener("DOMContentLoaded", function() {
                 likeBtn.disabled = true;
                 likeBtn.textContent = "Ya diste Me Gusta";
                 likeBtn.classList.add("liked");
-    
+
+                // Guardar el producto en la cookie
                 likedProducts.push(productoId);
-                document.cookie = `${likedProductsCookieName}=${likedProducts.join(",")}; path=/; max-age=31536000`;
+                document.cookie = `liked_products=${likedProducts.join(",")}; path=/; max-age=31536000`;
             } else {
-                console.error("Error en la respuesta del servidor:", data.error);
-                alert("No se pudo dar Me Gusta: " + data.error);
+                console.error("Error en la respuesta del servidor:", data);
             }
         })
         .catch(error => console.error("Error en la petición:", error));
     });
 });
-</script>
 
-<!-- Código para el carrusel (sin cambios) -->
-<script>
+
 document.addEventListener("DOMContentLoaded", function () {
     const carousel = document.querySelector(".carousel-items");
     const images = document.querySelectorAll(".carousel-image");
@@ -498,5 +474,7 @@ document.addEventListener("DOMContentLoaded", function () {
 </script>
 
 
+
+</script>
 
 {% endblock %}
