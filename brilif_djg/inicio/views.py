@@ -71,11 +71,6 @@ def contacto(request):
     return render(request, 'inicio/contacto.html')
 
 
-from django.shortcuts import render, get_object_or_404
-from django.http import JsonResponse
-import uuid
-from .models import Producto
-from .views import PROCESO_MAPPING  # Asegúrate de importar tu mapeo correctamente
 
 def producto_detail(request, producto_id):
     producto = get_object_or_404(Producto, id=producto_id)
@@ -110,31 +105,24 @@ def producto_detail(request, producto_id):
 
     # Manejar la solicitud POST para incrementar "Me Gusta"
     if request.method == 'POST':
-        # Si ya dio "Me Gusta", no permitimos otro
         if producto_liked:
             return JsonResponse({
                 'success': False,
                 'error': 'Ya diste Me Gusta a este producto'
             }, status=400)
         
-        # Incrementar el contador y guardar el like
         producto.cantidad_me_gusta += 1
         producto.save()
-
         liked_products.append(str(producto.id))
         response = JsonResponse({
             'success': True,
             'likes_count': producto.cantidad_me_gusta
         })
 
-        # Setear las cookies con el identificador del usuario y los productos "liked"
         response.set_cookie('user_cookie', user_cookie, max_age=60*60*24*365)
         response.set_cookie(f'liked_products_{user_cookie}', ','.join(liked_products), max_age=60*60*24*365)
-
         return response
 
-    # Para solicitudes GET: renderizar la plantilla con la información del producto,
-    # incluyendo si ya se le dio "Me Gusta" o no.
     response = render(request, 'inicio/producto_detail.html', {
         'producto': producto,
         'combustible': combustible,
