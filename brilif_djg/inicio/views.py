@@ -74,7 +74,7 @@ def contacto(request):
 
 def producto_detail(request, producto_id):
     producto = get_object_or_404(Producto, id=producto_id)
-
+    
     # Obtener el combustible desde el equipo relacionado
     combustible = None
     proceso_info = PROCESO_MAPPING.get(producto.procesos)
@@ -85,7 +85,7 @@ def producto_detail(request, producto_id):
             if equipo_relacionado and hasattr(equipo_relacionado, 'combustible'):
                 combustible = equipo_relacionado.combustible
 
-    # Recopilar imágenes disponibles (asumiendo que tienes imagen_1 a imagen_4)
+    # Recopilar imágenes disponibles
     imagenes = []
     for i in range(1, 5):
         imagen_attr = f'imagen_{i}'
@@ -93,43 +93,56 @@ def producto_detail(request, producto_id):
         if imagen:
             imagenes.append(imagen.url)
 
-    # Manejo de cookies para los "likes"
-    user_cookie = request.COOKIES.get('user_cookie', None)
-    if not user_cookie:
-        user_cookie = str(uuid.uuid4())
-
-    # Obtener los productos a los que el usuario ya le ha dado "Me Gusta"
-    liked_products = request.COOKIES.get(f'liked_products_{user_cookie}', '')
-    liked_products = liked_products.split(',') if liked_products else []
+    # Generar o obtener user_cookie
+    user_cookie = request.COOKIES.get('user_cookie', str(uuid.uuid4()))
+    
+    # Obtener productos con "Me Gusta"
+    cookie_name = f'liked_products_{user_cookie}'
+    liked_products = request.COOKIES.get(cookie_name, '').split(',')
+    liked_products = [p for p in liked_products if p]  # Eliminar valores vacíos
     producto_liked = str(producto.id) in liked_products
 
-    # Manejar la solicitud POST para incrementar "Me Gusta"
+    # Manejar POST para "Me Gusta"
     if request.method == 'POST':
-        if producto_liked:
+        try:
+            if producto_liked:
+                return JsonResponse({
+                    'success': False,
+                    'error': 'Ya diste Me Gusta a este producto'
+                }, status=400)
+            
+            producto.cantidad_me_gusta += 1
+            producto.save()
+            
+            liked_products.append(str(producto.id))
+            response = JsonResponse({
+                'success': True,
+                'likes_count': producto.cantidad_me_gusta
+            })
+            
+            # Establecer cookies
+            response.set_cookie('user_cookie', user_cookie, max_age=31536000)  # 1 año
+            response.set_cookie(cookie_name, ','.join(liked_products), max_age=31536000)
+            
+            return response
+            
+        except Exception as e:
             return JsonResponse({
                 'success': False,
-                'error': 'Ya diste Me Gusta a este producto'
-            }, status=400)
-        
-        producto.cantidad_me_gusta += 1
-        producto.save()
-        liked_products.append(str(producto.id))
-        response = JsonResponse({
-            'success': True,
-            'likes_count': producto.cantidad_me_gusta
-        })
+                'error': str(e)
+            }, status=500)
 
-        response.set_cookie('user_cookie', user_cookie, max_age=60*60*24*365)
-        response.set_cookie(f'liked_products_{user_cookie}', ','.join(liked_products), max_age=60*60*24*365)
-        return response
-
+    # Renderizar template para GET
     response = render(request, 'inicio/producto_detail.html', {
         'producto': producto,
         'combustible': combustible,
         'imagenes': imagenes,
         'producto_liked': producto_liked,
     })
-    response.set_cookie('user_cookie', user_cookie, max_age=60*60*24*365)
+    
+    # Establecer cookie de usuario
+    response.set_cookie('user_cookie', user_cookie, max_age=31536000)
+    
     return response
 
 
