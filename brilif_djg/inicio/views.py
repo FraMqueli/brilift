@@ -6,6 +6,10 @@ import uuid
 from .models import (
     Producto, Combustible, TipoPlataformaDeElevacion, TipoBrazoArticulado, TipoAlzaHombre, TipoGruaHorquilla
 )
+from django.views.decorators.csrf import ensure_csrf_cookie
+from django.http import JsonResponse
+import json
+
 
 PROCESO_MAPPING = {
     'ALZA_HOMBRE': {'modelo': 'alzahombre', 'tipo_modelo': TipoAlzaHombre},
@@ -71,10 +75,57 @@ def contacto(request):
     return render(request, 'inicio/contacto.html')
 
 
-
+@ensure_csrf_cookie
 def producto_detail(request, producto_id):
     producto = get_object_or_404(Producto, id=producto_id)
-    
+    if request.method == 'POST':
+        try:
+            # Verificar si es una petición AJAX
+            if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                data = json.loads(request.body) if request.body else {}
+                
+                # Obtener o crear cookie de usuario
+                user_cookie = request.COOKIES.get('user_cookie', str(uuid.uuid4()))
+                cookie_name = f'liked_products_{user_cookie}'
+                liked_products = request.COOKIES.get(cookie_name, '').split(',')
+                liked_products = [p for p in liked_products if p]
+
+                # Verificar si ya dio like
+                if str(producto_id) in liked_products:
+                    return JsonResponse({
+                        'success': False,
+                        'error': 'Ya diste Me Gusta a este producto'
+                    })
+
+                # Incrementar likes
+                producto.cantidad_me_gusta += 1
+                producto.save()
+
+                # Actualizar liked_products
+                liked_products.append(str(producto_id))
+                
+                response = JsonResponse({
+                    'success': True,
+                    'likes_count': producto.cantidad_me_gusta
+                })
+                
+                # Establecer cookies
+                response.set_cookie('user_cookie', user_cookie, max_age=31536000)
+                response.set_cookie(cookie_name, ','.join(liked_products), max_age=31536000)
+                
+                return response
+
+        except json.JSONDecodeError:
+            return JsonResponse({
+                'success': False,
+                'error': 'Formato de datos inválido'
+            }, status=400)
+        except Exception as e:
+            return JsonResponse({
+                'success': False,
+                'error': str(e)
+            }, status=500)
+
     # Obtener el combustible desde el equipo relacionado
     combustible = None
     proceso_info = PROCESO_MAPPING.get(producto.procesos)
@@ -85,7 +136,7 @@ def producto_detail(request, producto_id):
             if equipo_relacionado and hasattr(equipo_relacionado, 'combustible'):
                 combustible = equipo_relacionado.combustible
 
-    # Recopilar imágenes disponibles
+    # Recopilar imágenes disponibles (asumiendo que tienes imagen_1 a imagen_4)
     imagenes = []
     for i in range(1, 5):
         imagen_attr = f'imagen_{i}'
@@ -93,56 +144,43 @@ def producto_detail(request, producto_id):
         if imagen:
             imagenes.append(imagen.url)
 
-    # Generar o obtener user_cookie
-    user_cookie = request.COOKIES.get('user_cookie', str(uuid.uuid4()))
-    
-    # Obtener productos con "Me Gusta"
-    cookie_name = f'liked_products_{user_cookie}'
-    liked_products = request.COOKIES.get(cookie_name, '').split(',')
-    liked_products = [p for p in liked_products if p]  # Eliminar valores vacíos
+    # Manejo de cookies para los "likes"
+    user_cookie = request.COOKIES.get('user_cookie', None)
+    if not user_cookie:
+        user_cookie = str(uuid.uuid4())
+
+    # Obtener los productos a los que el usuario ya le ha dado "Me Gusta"
+    liked_products = request.COOKIES.get(f'liked_products_{user_cookie}', '')
+    liked_products = liked_products.split(',') if liked_products else []
     producto_liked = str(producto.id) in liked_products
 
-    # Manejar POST para "Me Gusta"
+    # Manejar la solicitud POST para incrementar "Me Gusta"
     if request.method == 'POST':
-        try:
-            if producto_liked:
-                return JsonResponse({
-                    'success': False,
-                    'error': 'Ya diste Me Gusta a este producto'
-                }, status=400)
-            
-            producto.cantidad_me_gusta += 1
-            producto.save()
-            
-            liked_products.append(str(producto.id))
-            response = JsonResponse({
-                'success': True,
-                'likes_count': producto.cantidad_me_gusta
-            })
-            
-            # Establecer cookies
-            response.set_cookie('user_cookie', user_cookie, max_age=31536000)  # 1 año
-            response.set_cookie(cookie_name, ','.join(liked_products), max_age=31536000)
-            
-            return response
-            
-        except Exception as e:
+        if producto_liked:
             return JsonResponse({
                 'success': False,
-                'error': str(e)
-            }, status=500)
+                'error': 'Ya diste Me Gusta a este producto'
+            }, status=400)
+        
+        producto.cantidad_me_gusta += 1
+        producto.save()
+        liked_products.append(str(producto.id))
+        response = JsonResponse({
+            'success': True,
+            'likes_count': producto.cantidad_me_gusta
+        })
 
-    # Renderizar template para GET
+        response.set_cookie('user_cookie', user_cookie, max_age=60*60*24*365)
+        response.set_cookie(f'liked_products_{user_cookie}', ','.join(liked_products), max_age=60*60*24*365)
+        return response
+
     response = render(request, 'inicio/producto_detail.html', {
         'producto': producto,
         'combustible': combustible,
         'imagenes': imagenes,
         'producto_liked': producto_liked,
     })
-    
-    # Establecer cookie de usuario
-    response.set_cookie('user_cookie', user_cookie, max_age=31536000)
-    
+    response.set_cookie('user_cookie', user_cookie, max_age=60*60*24*365)
     return response
 
 

@@ -3,6 +3,7 @@
 {% block title %}{{ producto.nombre }} - Detalles{% endblock %}
 
 {% block content %}
+{% csrf_token %}
 <section class="producto-detalle fade-in">
     <div class="container">
         <div class="producto-detalle-header">
@@ -372,48 +373,52 @@
 <script>
    document.addEventListener("DOMContentLoaded", function() {
     const likeBtn = document.getElementById("like-btn");
-    const csrfToken = document.querySelector('#like-form [name=csrfmiddlewaretoken]').value;
     const likesCount = document.getElementById("likes-count");
     const productoId = "{{ producto.id }}";
-
+    
     if (likeBtn) {
         likeBtn.addEventListener("click", function(e) {
             e.preventDefault();
-            console.log("Botón de like clickeado");
-            console.log("CSRF Token:", csrfToken);
-            console.log("Producto ID:", productoId);
+            
+            // Obtener el token CSRF de la cookie en lugar del formulario
+            const csrftoken = document.cookie
+                .split('; ')
+                .find(row => row.startsWith('csrftoken='))
+                ?.split('=')[1];
 
-            fetch(`${window.location.pathname}`, {
-                method: "POST",
+            fetch(window.location.pathname, {
+                method: 'POST',
                 headers: {
-                    "X-CSRFToken": csrfToken,
-                    "Content-Type": "application/json",
+                    'X-CSRFToken': csrftoken,
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json'
                 },
+                body: JSON.stringify({
+                    action: 'like',
+                    producto_id: productoId
+                }),
                 credentials: 'same-origin'
             })
             .then(response => {
-                console.log("Status de la respuesta:", response.status);
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
                 return response.json();
             })
             .then(data => {
-                console.log("Datos recibidos:", data);
                 if (data.success) {
                     likesCount.textContent = data.likes_count;
                     likeBtn.disabled = true;
                     likeBtn.textContent = "Ya diste Me Gusta";
                     likeBtn.classList.add("liked");
                 } else {
-                    console.error("Error en la respuesta:", data.error);
-                    alert("Error: " + data.error);
+                    console.error("Error:", data.error);
                 }
             })
             .catch(error => {
                 console.error("Error en la petición:", error);
-                alert("Hubo un error al procesar tu like. Por favor, intenta de nuevo.");
             });
         });
-    } else {
-        console.error("No se encontró el botón de like");
     }
 });
 
