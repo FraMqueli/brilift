@@ -369,18 +369,17 @@
     
 </style>
 
-<!-- JavaScript para manejar los Likes -->
-<script>
-   document.addEventListener("DOMContentLoaded", function() {
+<!-- JavaScript para manejar los Likes --><script>
+document.addEventListener("DOMContentLoaded", function() {
     const likeBtn = document.getElementById("like-btn");
     const likesCount = document.getElementById("likes-count");
-    const productoId = "{{ producto.id }}";
-    
+    const productoId = "{{ producto.id }}";  // Asegúrate de tener la variable disponible
+
     if (likeBtn) {
         likeBtn.addEventListener("click", function(e) {
             e.preventDefault();
             
-            // Obtener el token CSRF de la cookie en lugar del formulario
+            // Obtén el token CSRF (si usas la cookie por defecto de Django)
             const csrftoken = document.cookie
                 .split('; ')
                 .find(row => row.startsWith('csrftoken='))
@@ -390,24 +389,28 @@
                 method: 'POST',
                 headers: {
                     'X-CSRFToken': csrftoken,
+                    'X-Requested-With': 'XMLHttpRequest',  // <-- Indica que es AJAX
                     'Content-Type': 'application/json',
                     'Accept': 'application/json'
                 },
+                credentials: 'same-origin',  // Mantener las cookies en la petición
                 body: JSON.stringify({
                     action: 'like',
                     producto_id: productoId
-                }),
-                credentials: 'same-origin'
+                })
             })
             .then(response => {
                 if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
+                    throw new Error(`Error HTTP! status: ${response.status}`);
                 }
                 return response.json();
             })
             .then(data => {
                 if (data.success) {
+                    // Actualizamos el contador de "Me Gusta"
                     likesCount.textContent = data.likes_count;
+                    
+                    // Deshabilitamos el botón para que no vuelva a dar like
                     likeBtn.disabled = true;
                     likeBtn.textContent = "Ya diste Me Gusta";
                     likeBtn.classList.add("liked");
