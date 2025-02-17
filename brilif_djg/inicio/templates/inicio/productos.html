@@ -183,7 +183,6 @@
             object-fit: cover;
         }
 
-        /* Estilo para la superposición de texto */
         .text-overlay {
             position: absolute;
             top: 50%;
@@ -192,32 +191,34 @@
             color: white;
             font-weight: bold;
             text-align: center;
-            text-shadow: 2px 2px 10px rgba(0, 0, 0, 0.7);
-            width: 80%; /* Ajusta el ancho al 90% del contenedor */
-            max-width: 90%; /* Evita que el texto se salga del contenedor */
-            white-space: normal; /* Permite que el texto se divida en varias líneas si es necesario */
-            word-wrap: break-word; /* Asegura que el texto se ajuste a la línea */
+            /* Se actualiza el text-shadow para que sea similar al de .process-name */
+            text-shadow: 2px 2px 0px rgb(255, 0, 0);
+            width: 90%;
+            max-width: 90%;
             padding: 10px;
             box-sizing: border-box;
-            font-size: clamp(16px, 5vw, 36px);
-            line-height: 1.2 /* Ajusta el tamaño de la fuente según el ancho de la ventana */
+            /* Se ajusta el tamaño de fuente para escritorio */
+            font-size: clamp(24px, 3vw, 36px);
+            line-height: 1.2;
         }
+        
         @media (max-width: 768px) {
             .text-overlay {
-                font-size: clamp(12px, 4vw, 28px); /* Reduce el tamaño en pantallas pequeñas */
-                line-height: 1.1; /* Reduce el espacio entre líneas */
-                padding: 5px; /* Reduce el padding */
-                width: 90%;
+                font-size: clamp(18px, 4vw, 28px);
+                padding: 8px;
+                width: 95%;
             }
         }
         
         @media (max-width: 480px) {
             .text-overlay {
-                font-size: clamp(10px, 3.5vw, 22px); /* Reduce aún más el tamaño en móviles pequeños */
-                width: 95%;
-                top: 55%; /* Ajusta la posición vertical */
+                font-size: clamp(16px, 4vw, 22px);
+                padding: 5px;
+                width: 98%;
+                top: 55%;
             }
         }
+    
 
         /* Estilo para el formulario de filtros */
         .filter-form {
