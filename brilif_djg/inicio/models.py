@@ -138,6 +138,9 @@ class Producto(models.Model):
 
     def get_video_thumbnail(self):
         return f'https://img.youtube.com/vi/{self.video_url}/0.jpg'
+    def get_absolute_url(self):
+        # Ajusta 'producto_detail' al name que usas en tu urls.py
+        return reverse('producto_detail', args=[self.id])
     
     def __str__(self):
         return self.nombre
