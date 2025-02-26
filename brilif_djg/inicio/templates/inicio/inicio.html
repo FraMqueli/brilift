@@ -41,10 +41,28 @@
                     Ver Productos
                 </a>
             </div>
-            <div class="hero-image" style="text-align: center;">
-                <img src="{% static 'img/logo.png' %}" alt="Imagen principal" style="width: 400px; height: auto;">
-            </div>            
+            <div class="hero-image">
+                <img class="hero-img" src="{% static 'img/logo.png' %}" alt="Imagen principal" style="width: auto; height: 300px;">
+                <a href="https://www.ecogab.cl" target="_blank">
+                    <img class="hero-img" src="{% static 'img/logo.avif' %}" alt="ecogab.cl" style="width: auto; height: 200px;">
+                </a>
+            </div>          
             <style>
+                .hero-image {
+                        display: flex;
+                        justify-content: center;
+                        gap: 10px; /* Espacio entre imágenes */
+                        flex-wrap: wrap; /* Permite que se ajusten en móviles */
+                    }
+
+                    /* Ajustes para pantallas pequeñas */
+                    @media (max-width: 768px) {
+                        .hero-img {
+                            width: 100%; /* Ocupa todo el ancho */
+                            height: auto; /* Mantiene la proporción */
+                            max-height: 200px; /* Ajusta un límite de altura */
+                        }
+                    }
                 .text-carousel {
                     height: 100px;  /* Ajusta según el tamaño que necesites */
                     margin: 20px 0;
